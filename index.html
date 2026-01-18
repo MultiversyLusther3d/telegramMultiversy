@@ -1,166 +1,163 @@
 <!DOCTYPE html>
-<body data-screen="home">
-
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EHB Library</title>
     <style>
-/* Bloqueio de segurança para evitar cópias */
-.conteudo-texto {
-    -webkit-user-select: none; 
-    -moz-user-select: none;    
-    -ms-user-select: none;     
-    user-select: none;         /* Impede selecionar o texto */
-    pointer-events: none;      /* Impede clicar/arrastar */
-}
+        /* Estilos e Bloqueio de Segurança [cite: 2026-01-17] */
+        body { font-family: sans-serif; background: #f4ecd8; color: #332b22; margin: 0; }
         
-#screen-home, #screen-editor {
-    min-height: 100vh;
-    box-sizing: border-box;
-}
+        /* Impede seleção de texto para proteger a obra */
+        .conteudo-texto, body {
+            -webkit-user-select: none; 
+            -moz-user-select: none;    
+            -ms-user-select: none;     
+            user-select: none;
+        }
 
-        body { font-family: sans-serif; background: #f4ecd8; color: white; margin: 0; }
-        .screen { display: none; padding: 20px; }
-        
-        /* State Switcher Lógica */
+        .screen { display: none; padding: 20px; min-height: 100vh; box-sizing: border-box; }
         body[data-screen="home"] #screen-home { display: block; }
         body[data-screen="editor"] #screen-editor { display: block; }
-        
-        /* Botão EHB Flutuante */
+        body[data-screen="leitura"] #screen-leitura { display: block; }
+
         .btn-ehb { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; 
                    background: #ff4500; border-radius: 50%; display: flex; 
-                   align-items: center; justify-content: center; font-weight: bold; 
+                   align-items: center; justify-content: center; font-weight: bold; color: white;
                    cursor: pointer; box-shadow: 0 0 15px rgba(255,69,0,0.5); z-index: 100; }
 
-        .pasta { background: #1f1f1f; padding: 20px; margin: 10px 0; border-radius: 8px; border-left: 5px solid #ff4500; }
-        input, textarea, select { width: 100%; margin-bottom: 10px; background: #222; color: white; border: 1px solid #444; padding: 10px; }
-        button { background: #ff4500; color: white; border: none; padding: 15px; width: 100%; cursor: pointer; }
+        .pasta { background: #1f1f1f; color: white; padding: 20px; margin: 10px 0; border-radius: 8px; border-left: 5px solid #ff4500; cursor: pointer; }
+        input, textarea, select { width: 100%; margin-bottom: 10px; background: #fffcf2; color: #332b22; border: 1px solid #dcd0b9; padding: 10px; box-sizing: border-box; }
+        button { background: #ff4500; color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; }
+        
+        .capa-previa { width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
     </style>
 </head>
-<body>
+<body data-screen="home">
 
     <div class="btn-ehb" onclick="abrirDoacao()">EHB</div>
 
-        <div id="screen-home" class="screen">
-        <h2>Livraria EHB</h2>
-        <div class="pasta" onclick="mudarTela('editor')">✍️ Escrever Novo Livro</div>
+    <div id="screen-home" class="screen">
+        <h2 style="color: #5d4a37;">📚 Livraria EHB</h2>
+        <div class="pasta" onclick="mudarTela('editor')">✍️ Escrever / Editar Livro</div>
         <hr>
-        <div class="pasta">🔍 Mistério</div>
-        <div class="pasta">💻 Logbook EHB</div>
-        <div class="pasta">🏙️ Cyberpunk</div>
+        <div id="lista-obras">
+            </div>
     </div>
 
     <div id="screen-editor" class="screen">
         <button onclick="mudarTela('home')">⬅ Voltar</button>
-        <h2>Novo Livro</h2>
+        <h2>Editor de Obra</h2>
+        <p style="font-size: 12px; color: #666;">*Para adicionar páginas, use o MESMO título.</p>
         
-        <input type="text" id="titulo" placeholder="Título da Obra">
+        <input type="text" id="titulo" placeholder="Título da Obra (Exato para editar)">
+        <input type="text" id="autor" placeholder="Teu nome de Autor">
         
-        <input type="text" id="autor" placeholder="Seu nome de Autor">
+        <label>Capa (Upload do Telemóvel):</label>
+        <input type="file" id="capa" accept="image/*">
         
-        <input type="url" id="capa" placeholder="Link da imagem da Capa (JPG/PNG)">
-        
-        <label for="genero" style="font-weight: bold; font-size: 14px; margin-bottom: 5px; display: block;">Escolha o Gênero:</label>
-<select id="genero">
-    <option value="Mistério">🔍 Mistério</option>
-    <option value="Romance">❤️ Romance</option>
-    <option value="Ação">💥 Ação</option>
-    <option value="Ficção Científica">🚀 Ficção Científica</option>
-    <option value="Terror">👻 Terror</option>
-    <option value="Quadrinhos">🎨 Quadrinhos</option>
-    <option value="Logbook">💻 Logbook EHB</option>
-    <option value="Cyberpunk">🏙️ Cyberpunk</option>
-</select>
-        
+        <select id="genero">
+            <option value="Romance">❤️ Romance</option>
+            <option value="Ação">💥 Ação</option>
+            <option value="Ficção Científica">🚀 Ficção Científica</option>
+            <option value="Terror">👻 Terror</option>
+            <option value="Quadrinhos">🎨 Quadrinhos</option>
+            <option value="Mistério">🔍 Mistério</option>
+        </select>
 
-        <textarea id="sinopse" placeholder="Sinopse Curta (Aparecerá no grupo Telegram)"></textarea>
+        <textarea id="sinopse" placeholder="Sinopse Curta (Grupo Telegram)"></textarea>
+        <textarea id="conteudo" rows="10" placeholder="Escreve aqui a tua obra ou a nova página..."></textarea>
         
-        <textarea id="conteudo" rows="10" placeholder="Escreva o livro completo aqui (Ficará guardado no Mini App)..."></textarea>
-        
-        <button onclick="publicarObra()">PUBLICAR NA LIVRARIA</button>
+        <button id="btnPublicar" onclick="publicarObra()">🚀 PUBLICAR / ATUALIZAR</button>
     </div>
-    
+
+    <div id="screen-leitura" class="screen">
+        <button onclick="mudarTela('home')">⬅ Voltar</button>
+        <div id="conteudo-leitura" style="margin-top:20px;"></div>
+    </div>
 
     <script>
+        const API = 'https://cristhyno.pythonanywhere.com';
+
         function mudarTela(tela) {
             document.body.setAttribute('data-screen', tela);
-        }
-
-        function abrirDoacao() {
-            const pix = "SUA_CHAVE_PIX";
-            const usdt = "SEU_ENDERECO_USDT";
-            alert(`Apoie a EHB:\n\nPix: ${pix}\nUSDT: ${usdt}\n\nMínimo: R$ 1 ou 0,11 USDT`);
+            if(tela === 'home') carregarLivraria();
         }
 
         async function publicarObra() {
-    const dados = {
-        titulo: document.getElementById('titulo').value,
-        autor: document.getElementById('autor').value,
-        capa: document.getElementById('capa').value,
-        genero: document.getElementById('genero').value,
-        sinopse: document.getElementById('sinopse').value,
-        conteudo: document.getElementById('conteudo').value
-    };
+            const btn = document.getElementById('btnPublicar');
+            btn.innerText = "A processar...";
+            btn.disabled = true;
 
-    // Usando o link que validamos na foto anterior
-    const res = await fetch('https://cristhyno.pythonanywhere.com/publicar', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dados)
-    });
+            const formData = new FormData();
+            formData.append('titulo', document.getElementById('titulo').value);
+            formData.append('autor', document.getElementById('autor').value);
+            formData.append('genero', document.getElementById('genero').value);
+            formData.append('sinopse', document.getElementById('sinopse').value);
+            formData.append('conteudo', document.getElementById('conteudo').value);
+            
+            const capaInput = document.getElementById('capa');
+            if (capaInput.files[0]) {
+                formData.append('capa', capaInput.files[0]);
+            }
 
-    if(res.ok) {
-        alert("📚 Sucesso! A prévia foi para o grupo e o livro está na biblioteca.");
-        mudarTela('home');
-    } else {
-        alert("❌ Erro ao publicar. Verifique a conexão.");
-    }
-        }
-        
-
-            const res = await fetch('https://cristhyno.pythonanywhere.com/publicar', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(dados)
-            });
-
-            if(res.ok) {
-                alert("Publicado! Fofoca criada no grupo.");
-                mudarTela('home');
+            try {
+                const res = await fetch(`${API}/publicar`, {
+                    method: 'POST',
+                    body: formData 
+                });
+                if(res.ok) {
+                    alert("📚 Sucesso! Obra enviada ao Telegram e salva.");
+                    mudarTela('home');
+                }
+            } catch (e) {
+                alert("Erro ao conectar ao servidor.");
+            } finally {
+                btn.innerText = "🚀 PUBLICAR / ATUALIZAR";
+                btn.disabled = false;
             }
         }
-window.onload = () => { mudarTela('home'); };
-        // Bloqueio de Cópia e Botão Direito
-document.addEventListener('contextmenu', event => event.preventDefault()); // Bloqueia clique direito
-document.addEventListener('keydown', event => {
-    if (event.ctrlKey && (event.key === 'c' || event.key === 'u' || event.key === 's')) {
-        event.preventDefault(); // Bloqueia CTRL+C, CTRL+U (ver código) e CTRL+S
-    }
-});
 
-// Ajuste na função de Publicar para suportar ARQUIVO
-async function publicarObra() {
-    const formData = new FormData();
-    formData.append('titulo', document.getElementById('titulo').value);
-    formData.append('autor', document.getElementById('autor').value);
-    formData.append('conteudo', document.getElementById('conteudo').value);
-    
-    // Pega o arquivo do input (LocalStorage do celular)
-    const capaInput = document.getElementById('capa');
-    if (capaInput.files.length > 0) {
-        formData.append('capa', capaInput.files[0]);
-    }
+        async function carregarLivraria() {
+            try {
+                const res = await fetch(`${API}/obras`);
+                const obras = await res.json();
+                const container = document.getElementById('lista-obras');
+                container.innerHTML = '';
 
-    const res = await fetch(`${API}/publicar`, {
-        method: 'POST',
-        body: formData // Enviando como FormData, não JSON
-    });
+                Object.values(obras).forEach(obra => {
+                    const d = document.createElement('div');
+                    d.className = 'pasta';
+                    d.innerHTML = `📖 ${obra.titulo} <br><small>${obra.genero}</small>`;
+                    d.onclick = () => verObra(obra);
+                    container.appendChild(d);
+                });
+            } catch(e) { console.log("Livraria vazia."); }
+        }
 
-    if(res.ok) alert("Obra Protegida e Publicada!");
-}
-        
+        function verObra(obra) {
+            mudarTela('leitura');
+            document.getElementById('conteudo-leitura').innerHTML = `
+                <h2>${obra.titulo}</h2>
+                <p><strong>Autor:</strong> ${obra.autor}</p>
+                <p>${obra.sinopse}</p>
+                <button onclick="window.open('https://t.me/TEU_LINK_DO_GRUPO')">💬 LER E COMENTAR NO TELEGRAM</button>
+                <hr>
+                <div class="conteudo-texto" style="pointer-events:none;">${obra.conteudo}</div>
+            `;
+        }
 
+        function abrirDoacao() {
+            alert("Apoie a EHB: Pix ou USDT");
+        }
+
+        window.onload = () => { mudarTela('home'); };
+
+        // Proteção contra cópia
+        document.addEventListener('contextmenu', e => e.preventDefault());
+        document.addEventListener('keydown', e => {
+            if (e.ctrlKey && (e.key === 'c' || e.key === 'u' || e.key === 's')) e.preventDefault();
+        });
     </script>
 </body>
 </html>
