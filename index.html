@@ -79,12 +79,30 @@
         }
 
         async function publicarObra() {
-            const dados = {
-                titulo: document.getElementById('titulo').value,
-                sinopse: document.getElementById('sinopse').value,
-                genero: document.getElementById('genero').value,
-                autor: "Eh...Cris" // Exemplo
-            };
+    const dados = {
+        titulo: document.getElementById('titulo').value,
+        autor: document.getElementById('autor').value,
+        capa: document.getElementById('capa').value,
+        genero: document.getElementById('genero').value,
+        sinopse: document.getElementById('sinopse').value,
+        conteudo: document.getElementById('conteudo').value
+    };
+
+    // Usando o link que validamos na foto anterior
+    const res = await fetch('https://cristhyno.pythonanywhere.com/publicar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+    });
+
+    if(res.ok) {
+        alert("📚 Sucesso! A prévia foi para o grupo e o livro está na biblioteca.");
+        mudarTela('home');
+    } else {
+        alert("❌ Erro ao publicar. Verifique a conexão.");
+    }
+        }
+        
 
             const res = await fetch('https://cristhyno.pythonanywhere.com/publicar', {
                 method: 'POST',
