@@ -8,7 +8,7 @@
         /* Estilos e Bloqueio de Segurança [cite: 2026-01-17] */
         body { font-family: sans-serif; background: #f4ecd8; color: #332b22; margin: 0; }
         
-        /* Impede seleção de texto para proteger a obra */
+        /* Proteção contra cópia */
         .conteudo-texto, body {
             -webkit-user-select: none; 
             -moz-user-select: none;    
@@ -26,11 +26,40 @@
                    align-items: center; justify-content: center; font-weight: bold; color: white;
                    cursor: pointer; box-shadow: 0 0 15px rgba(255,69,0,0.5); z-index: 100; }
 
-        .pasta { background: #1f1f1f; color: white; padding: 20px; margin: 10px 0; border-radius: 8px; border-left: 5px solid #ff4500; cursor: pointer; }
+        /* ESTANTE EM GRADE (Grid) */
+        #lista-obras {
+            display: grid;
+            grid-template-columns: 1fr 1fr; /* 2 livros por linha */
+            gap: 15px;
+            padding-top: 10px;
+        }
+
+        .pasta-livro { 
+            background: #1f1f1f; 
+            color: white; 
+            border-radius: 8px; 
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border-bottom: 4px solid #ff4500;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .pasta-livro:active { transform: scale(0.95); }
+
+        .capa-estante {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            background: #333;
+        }
+
+        .info-card { padding: 10px; }
+        .tag-genero { color: #ff4500; font-size: 10px; font-weight: bold; text-transform: uppercase; }
+
         input, textarea, select { width: 100%; margin-bottom: 10px; background: #fffcf2; color: #332b22; border: 1px solid #dcd0b9; padding: 10px; box-sizing: border-box; }
         button { background: #ff4500; color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; }
-        
-        .capa-previa { width: 100%; max-height: 300px; object-fit: cover; border-radius: 8px; margin-bottom: 15px; }
     </style>
 </head>
 <body data-screen="home">
@@ -39,8 +68,7 @@
 
     <div id="screen-home" class="screen">
         <h2 style="color: #5d4a37;">📚 Livraria EHB</h2>
-        <div class="pasta" onclick="mudarTela('editor')">✍️ Escrever / Editar Livro</div>
-        <hr>
+        <button onclick="mudarTela('editor')" style="margin-bottom: 20px;">✍️ Escrever / Editar Livro</button>
         <div id="lista-obras">
             </div>
     </div>
@@ -48,14 +76,10 @@
     <div id="screen-editor" class="screen">
         <button onclick="mudarTela('home')">⬅ Voltar</button>
         <h2>Editor de Obra</h2>
-        <p style="font-size: 12px; color: #666;">*Para adicionar páginas, use o MESMO título.</p>
-        
         <input type="text" id="titulo" placeholder="Título da Obra (Exato para editar)">
         <input type="text" id="autor" placeholder="Teu nome de Autor">
-        
-        <label>Capa (Upload do Telemóvel):</label>
+        <label style="font-size: 12px; font-weight: bold;">Capa do Telemóvel:</label>
         <input type="file" id="capa" accept="image/*">
-        
         <select id="genero">
             <option value="Romance">❤️ Romance</option>
             <option value="Ação">💥 Ação</option>
@@ -64,10 +88,8 @@
             <option value="Quadrinhos">🎨 Quadrinhos</option>
             <option value="Mistério">🔍 Mistério</option>
         </select>
-
-        <textarea id="sinopse" placeholder="Sinopse Curta (Grupo Telegram)"></textarea>
-        <textarea id="conteudo" rows="10" placeholder="Escreve aqui a tua obra ou a nova página..."></textarea>
-        
+        <textarea id="sinopse" placeholder="Sinopse Curta"></textarea>
+        <textarea id="conteudo" rows="10" placeholder="Conteúdo da página..."></textarea>
         <button id="btnPublicar" onclick="publicarObra()">🚀 PUBLICAR / ATUALIZAR</button>
     </div>
 
@@ -107,11 +129,11 @@
                     body: formData 
                 });
                 if(res.ok) {
-                    alert("📚 Sucesso! Obra enviada ao Telegram e salva.");
+                    alert("📚 Sucesso! Obra enviada.");
                     mudarTela('home');
                 }
             } catch (e) {
-                alert("Erro ao conectar ao servidor.");
+                alert("Erro ao conectar.");
             } finally {
                 btn.innerText = "🚀 PUBLICAR / ATUALIZAR";
                 btn.disabled = false;
@@ -126,34 +148,41 @@
                 container.innerHTML = '';
 
                 Object.values(obras).forEach(obra => {
-                    const d = document.createElement('div');
-                    d.className = 'pasta';
-                    d.innerHTML = `📖 ${obra.titulo} <br><small>${obra.genero}</small>`;
-                    d.onclick = () => verObra(obra);
-                    container.appendChild(d);
+                    const card = document.createElement('div');
+                    card.className = 'pasta-livro';
+                    card.onclick = () => verObra(obra);
+                    
+                    card.innerHTML = `
+                        <img src="${obra.capa_url || 'https://via.placeholder.com/150x200'}" class="capa-estante">
+                        <div class="info-card">
+                            <span class="tag-genero">${obra.genero}</span>
+                            <div style="font-weight: bold; margin-top: 5px;">${obra.titulo}</div>
+                        </div>
+                    `;
+                    container.appendChild(card);
                 });
-            } catch(e) { console.log("Livraria vazia."); }
+            } catch(e) { console.log("Livraria vazia ou erro."); }
         }
 
         function verObra(obra) {
             mudarTela('leitura');
             document.getElementById('conteudo-leitura').innerHTML = `
+                <img src="${obra.capa_url}" style="width:100%; border-radius:10px;">
                 <h2>${obra.titulo}</h2>
                 <p><strong>Autor:</strong> ${obra.autor}</p>
-                <p>${obra.sinopse}</p>
-                <button onclick="window.open('https://t.me/TEU_LINK_DO_GRUPO')">💬 LER E COMENTAR NO TELEGRAM</button>
+                <p><em>${obra.sinopse}</em></p>
+                <button onclick="window.open('${obra.telegram_link}', '_blank')">💬 LER TÓPICO NO TELEGRAM</button>
                 <hr>
-                <div class="conteudo-texto" style="pointer-events:none;">${obra.conteudo}</div>
+                <div class="conteudo-texto" style="padding: 10px; background: #fffcf2; border-radius: 5px;">
+                    ${obra.conteudo.replace(/\n/g, '<br>')}
+                </div>
             `;
         }
 
-        function abrirDoacao() {
-            alert("Apoie a EHB: Pix ou USDT");
-        }
+        function abrirDoacao() { alert("Apoie a EHB!"); }
 
         window.onload = () => { mudarTela('home'); };
 
-        // Proteção contra cópia
         document.addEventListener('contextmenu', e => e.preventDefault());
         document.addEventListener('keydown', e => {
             if (e.ctrlKey && (e.key === 'c' || e.key === 'u' || e.key === 's')) e.preventDefault();
