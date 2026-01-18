@@ -25,6 +25,26 @@
                    align-items: center; justify-content: center; font-weight: bold; color: white;
                    cursor: pointer; box-shadow: 0 0 15px rgba(255,69,0,0.5); z-index: 100; }
 
+        /* BARRA DE FILTROS */
+        .filtro-container {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding: 10px 0;
+            margin-bottom: 15px;
+            white-space: nowrap;
+        }
+
+        .btn-filtro {
+            background: #5d4a37;
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            width: auto;
+            flex-shrink: 0;
+        }
+
         /* ESTANTE GLOBAL EM GRADE */
         #lista-obras {
             display: grid;
@@ -62,7 +82,6 @@
         
         .btn-excluir { background: #b22222 !important; margin-top: 10px; }
 
-        /* Estilo do Painel do Escritor */
         .painel-escritor {
             margin-top: 20px; 
             padding: 15px; 
@@ -78,7 +97,20 @@
 
     <div id="screen-home" class="screen">
         <h2 style="color: #5d4a37;">📚 Mural de Obras EHB</h2>
+        
+        <input type="text" id="campoBusca" placeholder="🔍 Pesquisar título ou autor..." onkeyup="filtrarMural()">
+        
+        <div class="filtro-container">
+            <button class="btn-filtro" onclick="filtrarPorGenero('Todos')">Todos</button>
+            <button class="btn-filtro" onclick="filtrarPorGenero('Romance')">❤️ Romance</button>
+            <button class="btn-filtro" onclick="filtrarPorGenero('Ação')">💥 Ação</button>
+            <button class="btn-filtro" onclick="filtrarPorGenero('Ficção Científica')">🚀 Ficção</button>
+            <button class="btn-filtro" onclick="filtrarPorGenero('Terror')">👻 Terror</button>
+            <button class="btn-filtro" onclick="filtrarPorGenero('Mistério')">🔍 Mistério</button>
+        </div>
+
         <button onclick="mudarTela('editor')" style="margin-bottom: 20px; background: #228b22;">✍️ Publicar Nova Obra</button>
+        
         <div id="lista-obras"></div>
     </div>
 
@@ -109,6 +141,7 @@
 
     <script>
         const API = 'https://cristhyno.pythonanywhere.com';
+        let todasAsObras = {}; // Memória para os filtros funcionarem
 
         function mudarTela(tela) {
             document.body.setAttribute('data-screen', tela);
@@ -143,25 +176,45 @@
         async function carregarLivraria() {
             try {
                 const res = await fetch(`${API}/obras`);
-                const obras = await res.json();
-                const container = document.getElementById('lista-obras');
-                container.innerHTML = '';
-
-                Object.values(obras).forEach(obra => {
-                    const card = document.createElement('div');
-                    card.className = 'pasta-livro';
-                    card.onclick = () => verObra(obra);
-                    card.innerHTML = `
-                        <img src="${obra.capa_url || 'https://via.placeholder.com/150x200'}" class="capa-estante">
-                        <div class="info-card">
-                            <span class="tag-genero">${obra.genero}</span>
-                            <div style="font-weight: bold; margin-top: 5px;">${obra.titulo}</div>
-                            <div style="font-size: 11px; color: #bbb;">Por: ${obra.autor}</div>
-                        </div>
-                    `;
-                    container.appendChild(card);
-                });
+                todasAsObras = await res.json();
+                renderizarMural(Object.values(todasAsObras));
             } catch(e) { console.log("Erro ao carregar mural."); }
+        }
+
+        function renderizarMural(lista) {
+            const container = document.getElementById('lista-obras');
+            container.innerHTML = '';
+            lista.forEach(obra => {
+                const card = document.createElement('div');
+                card.className = 'pasta-livro';
+                card.onclick = () => verObra(obra);
+                card.innerHTML = `
+                    <img src="${obra.capa_url || 'https://via.placeholder.com/150x200'}" class="capa-estante">
+                    <div class="info-card">
+                        <span class="tag-genero">${obra.genero}</span>
+                        <div style="font-weight: bold; margin-top: 5px;">${obra.titulo}</div>
+                        <div style="font-size: 11px; color: #bbb;">Por: ${obra.autor}</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function filtrarMural() {
+            const termo = document.getElementById('campoBusca').value.toLowerCase();
+            const filtradas = Object.values(todasAsObras).filter(o => 
+                o.titulo.toLowerCase().includes(termo) || o.autor.toLowerCase().includes(termo)
+            );
+            renderizarMural(filtradas);
+        }
+
+        function filtrarPorGenero(genero) {
+            if(genero === 'Todos') {
+                renderizarMural(Object.values(todasAsObras));
+            } else {
+                const filtradas = Object.values(todasAsObras).filter(o => o.genero === genero);
+                renderizarMural(filtradas);
+            }
         }
 
         function verObra(obra) {
@@ -194,12 +247,10 @@
         async function acrescentarPagina(titulo) {
             const texto = document.getElementById('texto-nova-pagina').value;
             if(!texto) return alert("Escreve algo!");
-
             const fd = new FormData();
             fd.append('titulo', titulo);
             fd.append('conteudo', texto);
-            fd.append('autor', ''); fd.append('genero', ''); fd.append('sinopse', ''); // Evita erro no Flask
-
+            fd.append('autor', ''); fd.append('genero', ''); fd.append('sinopse', '');
             try {
                 const res = await fetch(`${API}/publicar`, { method: 'POST', body: fd });
                 if(res.ok) { alert("📄 Página adicionada!"); mudarTela('home'); }
@@ -218,6 +269,7 @@
             } catch (e) { alert("Erro ao excluir."); }
         }
 
+        function abrirDoacao() { alert("EHB Library - Apoie a cultura livre!"); }
         window.onload = () => { mudarTela('home'); };
     </script>
 </body>
