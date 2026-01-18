@@ -34,7 +34,7 @@
 
     <div class="btn-ehb" onclick="abrirDoacao()">EHB</div>
 
-    <div id="screen-home" class="screen">
+        <div id="screen-home" class="screen">
         <h2>Livraria EHB</h2>
         <div class="pasta" onclick="mudarTela('editor')">✍️ Escrever Novo Livro</div>
         <hr>
@@ -46,16 +46,26 @@
     <div id="screen-editor" class="screen">
         <button onclick="mudarTela('home')">⬅ Voltar</button>
         <h2>Novo Livro</h2>
+        
         <input type="text" id="titulo" placeholder="Título da Obra">
-        <textarea id="sinopse" placeholder="Sinopse Curta (para o grupo)"></textarea>
-        <textarea id="conteudo" rows="10" placeholder="Escreva sua obra aqui..."></textarea>
+        
+        <input type="text" id="autor" placeholder="Seu nome de Autor">
+        
+        <input type="url" id="capa" placeholder="Link da imagem da Capa (JPG/PNG)">
+        
         <select id="genero">
             <option value="Mistério">Mistério</option>
             <option value="Logbook">Logbook EHB</option>
             <option value="Cyberpunk">Cyberpunk</option>
         </select>
+
+        <textarea id="sinopse" placeholder="Sinopse Curta (Aparecerá no grupo Telegram)"></textarea>
+        
+        <textarea id="conteudo" rows="10" placeholder="Escreva o livro completo aqui (Ficará guardado no Mini App)..."></textarea>
+        
         <button onclick="publicarObra()">PUBLICAR NA LIVRARIA</button>
     </div>
+    
 
     <script>
         function mudarTela(tela) {
