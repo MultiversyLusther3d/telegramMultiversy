@@ -76,7 +76,7 @@
                 autor: "Eh...Cris" // Exemplo
             };
 
-            const res = await fetch('/publicar', {
+            const res = await fetch('https://cristhyno.pythonanywhere.com/publicar', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify(dados)
