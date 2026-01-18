@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<body data-screen="home">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EHB Library</title>
+    <style>
+
+#screen-home, #screen-editor {
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+        body { font-family: sans-serif; background: #121212; color: white; margin: 0; }
+        .screen { display: none; padding: 20px; }
+        
+        /* State Switcher Lógica */
+        body[data-screen="home"] #screen-home { display: block; }
+        body[data-screen="editor"] #screen-editor { display: block; }
+        
+        /* Botão EHB Flutuante */
+        .btn-ehb { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; 
+                   background: #ff4500; border-radius: 50%; display: flex; 
+                   align-items: center; justify-content: center; font-weight: bold; 
+                   cursor: pointer; box-shadow: 0 0 15px rgba(255,69,0,0.5); z-index: 100; }
+
+        .pasta { background: #1f1f1f; padding: 20px; margin: 10px 0; border-radius: 8px; border-left: 5px solid #ff4500; }
+        input, textarea, select { width: 100%; margin-bottom: 10px; background: #222; color: white; border: 1px solid #444; padding: 10px; }
+        button { background: #ff4500; color: white; border: none; padding: 15px; width: 100%; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="btn-ehb" onclick="abrirDoacao()">EHB</div>
+
+    <div id="screen-home" class="screen">
+        <h2>Livraria EHB</h2>
+        <div class="pasta" onclick="mudarTela('editor')">✍️ Escrever Novo Livro</div>
+        <hr>
+        <div class="pasta">🔍 Mistério</div>
+        <div class="pasta">💻 Logbook EHB</div>
+        <div class="pasta">🏙️ Cyberpunk</div>
+    </div>
+
+    <div id="screen-editor" class="screen">
+        <button onclick="mudarTela('home')">⬅ Voltar</button>
+        <h2>Novo Livro</h2>
+        <input type="text" id="titulo" placeholder="Título da Obra">
+        <textarea id="sinopse" placeholder="Sinopse Curta (para o grupo)"></textarea>
+        <textarea id="conteudo" rows="10" placeholder="Escreva sua obra aqui..."></textarea>
+        <select id="genero">
+            <option value="Mistério">Mistério</option>
+            <option value="Logbook">Logbook EHB</option>
+            <option value="Cyberpunk">Cyberpunk</option>
+        </select>
+        <button onclick="publicarObra()">PUBLICAR NA LIVRARIA</button>
+    </div>
+
+    <script>
+        function mudarTela(tela) {
+            document.body.setAttribute('data-screen', tela);
+        }
+
+        function abrirDoacao() {
+            const pix = "SUA_CHAVE_PIX";
+            const usdt = "SEU_ENDERECO_USDT";
+            alert(`Apoie a EHB:\n\nPix: ${pix}\nUSDT: ${usdt}\n\nMínimo: R$ 1 ou 0,11 USDT`);
+        }
+
+        async function publicarObra() {
+            const dados = {
+                titulo: document.getElementById('titulo').value,
+                sinopse: document.getElementById('sinopse').value,
+                genero: document.getElementById('genero').value,
+                autor: "Eh...Cris" // Exemplo
+            };
+
+            const res = await fetch('/publicar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(dados)
+            });
+
+            if(res.ok) {
+                alert("Publicado! Fofoca criada no grupo.");
+                mudarTela('home');
+            }
+        }
+window.onload = () => { mudarTela('home'); };
+
+    </script>
+</body>
+</html>
