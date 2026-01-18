@@ -6,7 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EHB Library</title>
     <style>
-
+/* Bloqueio de segurança para evitar cópias */
+.conteudo-texto {
+    -webkit-user-select: none; 
+    -moz-user-select: none;    
+    -ms-user-select: none;     
+    user-select: none;         /* Impede selecionar o texto */
+    pointer-events: none;      /* Impede clicar/arrastar */
+}
+        
 #screen-home, #screen-editor {
     min-height: 100vh;
     box-sizing: border-box;
