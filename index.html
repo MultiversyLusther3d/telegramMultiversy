@@ -175,25 +175,58 @@
         }
 
         function verObra(obra) {
-            mudarTela('leitura');
-            const obraID = obra.titulo.replace(/ /g, "_").toLowerCase();
-            
-            document.getElementById('conteudo-leitura').innerHTML = `
-                <img src="${obra.capa_url || 'https://via.placeholder.com/150x200'}" style="width:100%; border-radius:10px; border: 2px solid #ff4500;">
-                <h2 style="margin-bottom: 5px;">${obra.titulo}</h2>
-                <p><strong>Autor:</strong> ${obra.autor} | <strong>Gênero:</strong> ${obra.genero}</p>
-                <p style="background: #e9dcc3; padding: 10px; border-radius: 5px;"><em>${obra.sinopse}</em></p>
-                
-                <button onclick="window.open('${obra.telegram_link}', '_blank')">💬 LER NO TÓPICO DO TELEGRAM</button>
-                
-                <button class="btn-excluir" onclick="excluirObra('${obraID}')">🗑️ EXCLUIR OBRA DO MURAL</button>
-                
-                <hr style="margin: 20px 0;">
-                <div class="conteudo-texto" style="padding: 15px; background: #fffcf2; border-radius: 5px; line-height: 1.6; border: 1px solid #dcd0b9;">
-                    ${obra.conteudo.replace(/\n/g, '<br>')}
-                </div>
-            `;
+    mudarTela('leitura');
+    const obraID = obra.titulo.replace(/ /g, "_").toLowerCase();
+    
+    // Criamos o HTML da obra
+    let htmlLeitura = `
+        <img src="${obra.capa_url || 'https://via.placeholder.com/150x200'}" style="width:100%; border-radius:10px; border: 2px solid #ff4500;">
+        <h2 style="margin-bottom: 5px;">${obra.titulo}</h2>
+        <p><strong>Autor:</strong> ${obra.autor} | <strong>Gênero:</strong> ${obra.genero}</p>
+        <p style="background: #e9dcc3; padding: 10px; border-radius: 5px;"><em>${obra.sinopse}</em></p>
+        
+        <button onclick="window.open('${obra.telegram_link}', '_blank')">💬 LER NO TÓPICO DO TELEGRAM</button>
+        
+        <div style="margin-top: 20px; padding: 15px; border: 2px dashed #ff4500; border-radius: 10px; background: #fff5e6;">
+            <h4 style="margin-top:0;">🛠️ Painel do Escritor</h4>
+            <textarea id="texto-nova-pagina" placeholder="Escreva a nova página aqui..." style="height: 100px;"></textarea>
+            <button onclick="acrescentarPagina('${obraID}')" style="background: #228b22;">➕ ADICIONAR ESTA PÁGINA</button>
+            <button class="btn-excluir" onclick="excluirObra('${obraID}')">🗑️ EXCLUIR TODA A OBRA</button>
+        </div>
+
+        <hr style="margin: 20px 0;">
+        <div class="conteudo-texto" style="padding: 15px; background: #fffcf2; border-radius: 5px; line-height: 1.6; border: 1px solid #dcd0b9;">
+            ${obra.conteudo.replace(/\n/g, '<br>')}
+        </div>
+    `;
+    
+    document.getElementById('conteudo-leitura').innerHTML = htmlLeitura;
+}
+
+// NOVA FUNÇÃO: Envia apenas a nova página para o tópico existente
+async function acrescentarPagina(obra_id) {
+    const conteudo = document.getElementById('texto-nova-pagina').value;
+    if(!conteudo) return alert("Escreva algo primeiro!");
+
+    const formData = new FormData();
+    formData.append('titulo', obra_id.replace(/_/g, " ")); // Reconecta pelo título
+    formData.append('conteudo', conteudo);
+
+    try {
+        const res = await fetch(`${API}/publicar`, {
+            method: 'POST',
+            body: formData 
+        });
+        if(res.ok) {
+            alert("📄 Página adicionada com sucesso ao tópico!");
+            carregarLivraria(); // Atualiza os dados
+            mudarTela('home'); // Volta para o mural
         }
+    } catch (e) {
+        alert("Erro ao conectar.");
+    }
+}
+        
 
         async function excluirObra(obra_id) {
             if(!confirm("Tem certeza? Isso removerá a obra do Mural e excluirá o tópico no Telegram.")) return;
