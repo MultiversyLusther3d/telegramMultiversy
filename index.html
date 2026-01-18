@@ -116,6 +116,35 @@
             }
         }
 window.onload = () => { mudarTela('home'); };
+        // Bloqueio de Cópia e Botão Direito
+document.addEventListener('contextmenu', event => event.preventDefault()); // Bloqueia clique direito
+document.addEventListener('keydown', event => {
+    if (event.ctrlKey && (event.key === 'c' || event.key === 'u' || event.key === 's')) {
+        event.preventDefault(); // Bloqueia CTRL+C, CTRL+U (ver código) e CTRL+S
+    }
+});
+
+// Ajuste na função de Publicar para suportar ARQUIVO
+async function publicarObra() {
+    const formData = new FormData();
+    formData.append('titulo', document.getElementById('titulo').value);
+    formData.append('autor', document.getElementById('autor').value);
+    formData.append('conteudo', document.getElementById('conteudo').value);
+    
+    // Pega o arquivo do input (LocalStorage do celular)
+    const capaInput = document.getElementById('capa');
+    if (capaInput.files.length > 0) {
+        formData.append('capa', capaInput.files[0]);
+    }
+
+    const res = await fetch(`${API}/publicar`, {
+        method: 'POST',
+        body: formData // Enviando como FormData, não JSON
+    });
+
+    if(res.ok) alert("Obra Protegida e Publicada!");
+}
+        
 
     </script>
 </body>
