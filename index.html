@@ -26,7 +26,6 @@
                    align-items: center; justify-content: center; font-weight: bold; color: white;
                    cursor: pointer; box-shadow: 0 0 15px rgba(255,69,0,0.5); z-index: 100; }
 
-        /* BARRA DE FILTROS */
         .filtro-container {
             display: flex;
             gap: 8px;
@@ -47,7 +46,6 @@
             border: none;
         }
 
-        /* ESTANTE GLOBAL EM GRADE */
         #lista-obras {
             display: grid;
             grid-template-columns: 1fr 1fr; 
@@ -167,7 +165,7 @@
             formData.append('genero', document.getElementById('genero').value);
             formData.append('sinopse', document.getElementById('sinopse').value);
             formData.append('conteudo', document.getElementById('conteudo').value);
-            formData.append('usuario_id', user.id); // Vínculo de propriedade
+            formData.append('usuario_id', user.id); 
             
             const capaInput = document.getElementById('capa');
             if (capaInput.files[0]) formData.append('capa', capaInput.files[0]);
@@ -237,12 +235,11 @@
             const tituloRef = obra.titulo;
             const obraID_excluir = obra.titulo.replace(/ /g, "_").toLowerCase();
 
-            // TRAVA DE SEGURANÇA: Painel só aparece se for o dono ou admin
-            // Se não tem dono OU se o dono é o usuário atual OU se é você (Admin)
-if (!obra.usuario_id || currentUserId === obra.usuario_id?.toString() || currentUserId === "7343419996") {
-    painelEscritorHTML = `...`; 
-}
-    
+            let painelEscritorHTML = "";
+            
+            // TRAVA CORRIGIDA: Permite se não houver dono OU se for o dono atual OU se for admin
+            if (!obra.usuario_id || currentUserId === obra.usuario_id.toString() || currentUserId === "7343419996") {
+                painelEscritorHTML = `
                     <div class="painel-escritor">
                         <h4 style="margin-top:0;">🛠️ Painel do Escritor</h4>
                         <textarea id="texto-nova-pagina" placeholder="Escreve a nova página aqui..." style="height: 100px; width:100%;"></textarea>
@@ -278,12 +275,11 @@ if (!obra.usuario_id || currentUserId === obra.usuario_id?.toString() || current
             fd.append('titulo', titulo);
             fd.append('conteudo', texto);
             fd.append('usuario_id', user.id); 
-            fd.append('autor', ''); fd.append('genero', ''); fd.append('sinopse', '');
 
             try {
                 const res = await fetch(`${API}/publicar`, { method: 'POST', body: fd });
                 if(res.ok) { alert("📄 Página adicionada!"); mudarTela('home'); }
-                else { alert("Permissão negada ou erro no servidor."); }
+                else { alert("Apenas o autor pode editar esta obra."); }
             } catch (e) { alert("Erro ao adicionar."); }
         }
 
