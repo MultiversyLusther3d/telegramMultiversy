@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EHB Library - Mural Global</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         /* Estilos e Bloqueio de Segurança [cite: 2026-01-17] */
         body { font-family: sans-serif; background: #f4ecd8; color: #332b22; margin: 0; }
@@ -43,6 +44,7 @@
             font-size: 12px;
             width: auto;
             flex-shrink: 0;
+            border: none;
         }
 
         /* ESTANTE GLOBAL EM GRADE */
@@ -141,7 +143,10 @@
 
     <script>
         const API = 'https://cristhyno.pythonanywhere.com';
-        let todasAsObras = {}; // Memória para os filtros funcionarem
+        const tg = window.Telegram.WebApp;
+        tg.expand(); 
+
+        let todasAsObras = {}; 
 
         function mudarTela(tela) {
             document.body.setAttribute('data-screen', tela);
@@ -149,6 +154,9 @@
         }
 
         async function publicarObra() {
+            const user = tg.initDataUnsafe.user;
+            if(!user) return alert("Por favor, abra o app pelo Telegram!");
+
             const btn = document.getElementById('btnPublicar');
             btn.innerText = "A processar...";
             btn.disabled = true;
@@ -159,6 +167,7 @@
             formData.append('genero', document.getElementById('genero').value);
             formData.append('sinopse', document.getElementById('sinopse').value);
             formData.append('conteudo', document.getElementById('conteudo').value);
+            formData.append('usuario_id', user.id); // Vínculo de propriedade
             
             const capaInput = document.getElementById('capa');
             if (capaInput.files[0]) formData.append('capa', capaInput.files[0]);
@@ -168,6 +177,9 @@
                 if(res.ok) {
                     alert("✅ Obra publicada!");
                     mudarTela('home');
+                } else {
+                    const erro = await res.json();
+                    alert("Erro: " + erro.detalhes);
                 }
             } catch (e) { alert("Erro de conexão."); }
             finally { btn.innerText = "🚀 PUBLICAR NO MURAL"; btn.disabled = false; }
@@ -219,8 +231,24 @@
 
         function verObra(obra) {
             mudarTela('leitura');
+            const user = tg.initDataUnsafe.user;
+            const currentUserId = user ? user.id.toString() : null;
+            
             const tituloRef = obra.titulo;
             const obraID_excluir = obra.titulo.replace(/ /g, "_").toLowerCase();
+
+            // TRAVA DE SEGURANÇA: Painel só aparece se for o dono ou admin
+            let painelEscritorHTML = "";
+            if (currentUserId === obra.usuario_id?.toString() || currentUserId === "7343419996") {
+                painelEscritorHTML = `
+                    <div class="painel-escritor">
+                        <h4 style="margin-top:0;">🛠️ Painel do Escritor</h4>
+                        <textarea id="texto-nova-pagina" placeholder="Escreve a nova página aqui..." style="height: 100px; width:100%;"></textarea>
+                        <button onclick="acrescentarPagina('${tituloRef}')" style="background: #228b22;">➕ ADICIONAR ESTA PÁGINA</button>
+                        <button class="btn-excluir" onclick="excluirObra('${obraID_excluir}')">🗑️ EXCLUIR OBRA</button>
+                    </div>
+                `;
+            }
 
             document.getElementById('conteudo-leitura').innerHTML = `
                 <img src="${obra.capa_url || 'https://via.placeholder.com/150x200'}" style="width:100%; border-radius:10px; border: 2px solid #ff4500;">
@@ -230,12 +258,7 @@
                 
                 <button onclick="window.open('${obra.telegram_link}', '_blank')">💬 LER NO TELEGRAM</button>
                 
-                <div class="painel-escritor">
-                    <h4 style="margin-top:0;">🛠️ Painel do Escritor</h4>
-                    <textarea id="texto-nova-pagina" placeholder="Escreve a nova página aqui..." style="height: 100px; width:100%;"></textarea>
-                    <button onclick="acrescentarPagina('${tituloRef}')" style="background: #228b22;">➕ ADICIONAR ESTA PÁGINA</button>
-                    <button class="btn-excluir" onclick="excluirObra('${obraID_excluir}')">🗑️ EXCLUIR OBRA</button>
-                </div>
+                ${painelEscritorHTML}
 
                 <hr style="margin: 20px 0;">
                 <div class="conteudo-texto" style="padding: 15px; background: #fffcf2; border-radius: 5px; border: 1px solid #dcd0b9;">
@@ -245,27 +268,38 @@
         }
 
         async function acrescentarPagina(titulo) {
+            const user = tg.initDataUnsafe.user;
             const texto = document.getElementById('texto-nova-pagina').value;
             if(!texto) return alert("Escreve algo!");
+
             const fd = new FormData();
             fd.append('titulo', titulo);
             fd.append('conteudo', texto);
+            fd.append('usuario_id', user.id); 
             fd.append('autor', ''); fd.append('genero', ''); fd.append('sinopse', '');
+
             try {
                 const res = await fetch(`${API}/publicar`, { method: 'POST', body: fd });
                 if(res.ok) { alert("📄 Página adicionada!"); mudarTela('home'); }
+                else { alert("Permissão negada ou erro no servidor."); }
             } catch (e) { alert("Erro ao adicionar."); }
         }
 
         async function excluirObra(obra_id) {
+            const user = tg.initDataUnsafe.user;
             if(!confirm("Excluir do Mural e Telegram?")) return;
+
             try {
                 const res = await fetch(`${API}/excluir`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ obra_id: obra_id })
+                    body: JSON.stringify({ 
+                        obra_id: obra_id,
+                        usuario_id: user.id 
+                    })
                 });
                 if(res.ok) { alert("Removida."); mudarTela('home'); }
+                else { alert("Você não tem permissão para excluir esta obra."); }
             } catch (e) { alert("Erro ao excluir."); }
         }
 
