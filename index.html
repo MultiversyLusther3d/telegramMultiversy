@@ -238,9 +238,11 @@
             const obraID_excluir = obra.titulo.replace(/ /g, "_").toLowerCase();
 
             // TRAVA DE SEGURANÇA: Painel só aparece se for o dono ou admin
-            let painelEscritorHTML = "";
-            if (currentUserId === obra.usuario_id?.toString() || currentUserId === "7343419996") {
-                painelEscritorHTML = `
+            // Se não tem dono OU se o dono é o usuário atual OU se é você (Admin)
+if (!obra.usuario_id || currentUserId === obra.usuario_id?.toString() || currentUserId === "7343419996") {
+    painelEscritorHTML = `...`; 
+}
+    
                     <div class="painel-escritor">
                         <h4 style="margin-top:0;">🛠️ Painel do Escritor</h4>
                         <textarea id="texto-nova-pagina" placeholder="Escreve a nova página aqui..." style="height: 100px; width:100%;"></textarea>
