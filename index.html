@@ -148,7 +148,6 @@
             if(tela === 'perfil') carregarDadosSociais(); 
         }
 
-        // --- SISTEMA DE PERFIL E FOTO (CONECTADO AO SOCIAL.JSON) ---
         async function carregarDadosSociais() {
             const user = tg.initDataUnsafe.user || { id: "7343419996", first_name: "Visitante", username: "guest" };
             document.getElementById('perfil-nome').innerText = user.first_name;
@@ -169,22 +168,20 @@
 
         async function atualizarFoto(input) {
             if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => document.getElementById('foto-exibida').src = e.target.result;
-                reader.readAsDataURL(input.files[0]);
-
                 const formData = new FormData();
                 formData.append('foto', input.files[0]);
                 formData.append('usuario_id', tg.initDataUnsafe.user.id);
                 try {
                     const res = await fetch(`${API}/upload_perfil`, { method: 'POST', body: formData });
                     const data = await res.json();
-                    if(data.url) alert("Foto de perfil atualizada!");
+                    if(data.url) {
+                        document.getElementById('foto-exibida').src = data.url;
+                        alert("Foto de perfil atualizada!");
+                    }
                 } catch(e) { console.error("Erro ao salvar foto no servidor."); }
             }
         }
 
-        // --- SISTEMA DE OBRAS (BIBLIOTECA.JSON) ---
         async function publicarObra() {
             const user = tg.initDataUnsafe.user;
             if(!user) return alert("Abra pelo Telegram!");
@@ -270,7 +267,6 @@
             `;
         }
 
-        // --- FUNÇÕES SOCIAIS ATUALIZADAS PARA O BACKEND ---
         async function votarDireto(titulo) {
             try {
                 await fetch(`${API}/votar_direto`, {
@@ -278,38 +274,30 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ titulo: titulo })
                 });
-                alert("Voto registrado no tópico de votação global!");
+                alert("Voto registrado!");
             } catch(e) { alert("Erro ao votar."); }
         }
 
         async function favoritarESeguir(titulo, autorId) {
             const user = tg.initDataUnsafe.user;
-            if(!user) return alert("Ação disponível apenas no Telegram.");
-            
+            if(!user) return alert("Disponível apenas no Telegram.");
             try {
                 await fetch(`${API}/favoritar`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        titulo: titulo, 
-                        usuario_id: user.id,
-                        autor_id: autorId 
-                    })
+                    body: JSON.stringify({ titulo: titulo, usuario_id: user.id, autor_id: autorId })
                 });
-                alert("Obra adicionada aos favoritos e você agora segue o autor!");
-            } catch(e) { alert("Erro ao salvar favoritos."); }
+                alert("Obra favoritada!");
+            } catch(e) { alert("Erro ao favoritar."); }
         }
 
         async function acrescentarPagina(titulo) {
             const user = tg.initDataUnsafe.user;
             const texto = document.getElementById('texto-nova-pagina').value;
-            if(!texto) return alert("Escreva algo!");
-
             const fd = new FormData();
             fd.append('titulo', titulo);
             fd.append('conteudo', texto);
             fd.append('usuario_id', user.id); 
-
             try {
                 const res = await fetch(`${API}/publicar`, { method: 'POST', body: fd });
                 if(res.ok) { alert("📄 Página adicionada!"); mudarTela('home'); }
@@ -318,8 +306,7 @@
 
         async function excluirObra(obra_id) {
             const user = tg.initDataUnsafe.user;
-            if(!confirm("Excluir do Mural e Telegram?")) return;
-
+            if(!confirm("Excluir obra?")) return;
             try {
                 await fetch(`${API}/excluir`, {
                     method: 'POST',
@@ -339,7 +326,7 @@
             renderizarMural(genero === 'Todos' ? Object.values(todasAsObras) : Object.values(todasAsObras).filter(o => o.genero === genero), 'lista-obras');
         }
 
-        function abrirDoacao() { alert("Chave pix: lusther3dmult@gmail.com | Wallet: 0x2ea5d9c734ac06d639d3e4b70ae4c1e163b48555 (Polygon)"); }
+        function abrirDoacao() { alert("Pix: lusther3dmult@gmail.com | Wallet: 0x2ea5d9c734ac06d639d3e4b70ae4c1e163b48555"); }
         window.onload = () => { mudarTela('home'); };
     </script>
 </body>
