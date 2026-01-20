@@ -271,6 +271,40 @@
                 </div>
             `;
         }
+        async function acrescentarPagina(titulo) {
+            const user = tg.initDataUnsafe.user;
+            const texto = document.getElementById('texto-nova-pagina').value;
+            if(!texto) return alert("Escreve algo!");
+
+            const fd = new FormData();
+            fd.append('titulo', titulo);
+            fd.append('conteudo', texto);
+            fd.append('usuario_id', user.id); 
+
+            try {
+                const res = await fetch(`${API}/publicar`, { method: 'POST', body: fd });
+                if(res.ok) { alert("📄 Página adicionada!"); mudarTela('home'); }
+                else { alert("Apenas o autor pode editar esta obra."); }
+            } catch (e) { alert("Erro ao adicionar."); }
+        }
+
+        async function excluirObra(obra_id) {
+            const user = tg.initDataUnsafe.user;
+            if(!confirm("Excluir do Mural e Telegram?")) return;
+
+            try {
+                const res = await fetch(`${API}/excluir`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        obra_id: obra_id,
+                        usuario_id: user.id 
+                    })
+                });
+                if(res.ok) { alert("Removida."); mudarTela('home'); }
+                else { alert("Você não tem permissão para excluir esta obra."); }
+            } catch (e) { alert("Erro ao excluir."); }
+        }
 
         function abrirDoacao() { alert("Faça sua doação para o crescimento dessa startup, não importa o valor, isso ajudará a equipe comtinuar desenvolvendo e investindo em mais tecnologias! Chave pix: lusther3dmult@gmail.com"); }
   
