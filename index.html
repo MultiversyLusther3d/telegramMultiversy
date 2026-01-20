@@ -236,6 +236,41 @@
         function filtrarPorGenero(genero) {
             renderizarMural(genero === 'Todos' ? Object.values(todasAsObras) : Object.values(todasAsObras).filter(o => o.genero === genero));
         }
+        function verObra(obra) {
+            mudarTela('leitura');
+            const user = tg.initDataUnsafe.user;
+            const currentUserId = user ? user.id.toString() : null;
+            const obraID_excluir = obra.titulo.replace(/ /g, "_").toLowerCase();
+
+            let painelEscritorHTML = "";
+            if (!obra.usuario_id || currentUserId === obra.usuario_id.toString() || currentUserId === "7343419996") {
+                painelEscritorHTML = `
+                    <div class="painel-escritor">
+                        <h4 style="margin-top:0;">🛠️ Painel do Escritor</h4>
+                        <textarea id="texto-nova-pagina" placeholder="Escreve a nova página aqui..."></textarea>
+                        <button onclick="acrescentarPagina('${obra.titulo}')" style="background: #228b22;">➕ ADICIONAR PÁGINA</button>
+                        <button class="btn-excluir" onclick="excluirObra('${obraID_excluir}')">🗑️ EXCLUIR OBRA</button>
+                    </div>
+                `;
+            }
+
+            document.getElementById('conteudo-leitura').innerHTML = `
+                <img src="${obra.capa_url || 'https://via.placeholder.com/150x200'}" style="width:100%; border-radius:10px; border: 2px solid #ff4500;">
+                <h2>${obra.titulo}</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            
+                    <button onclick="favoritarESeguir('${obra.titulo}', '${obra.usuario_id}')" style="background: #ff4500; flex: 1;">🔖 LER DEPOIS</button>
+                </div>
+                <p><strong>Autor:</strong> ${obra.autor}</p>
+                <p style="background: #e9dcc3; padding: 10px; border-radius: 5px;"><em>${obra.sinopse}</em></p>
+                <button onclick="window.open('${obra.telegram_link}', '_blank')">💬 LER NO TELEGRAM</button>
+                ${painelEscritorHTML}
+                <hr style="margin: 20px 0;">
+                <div class="conteudo-texto" style="padding: 15px; background: #fffcf2; border-radius: 5px; border: 1px solid #dcd0b9;">
+                    ${obra.conteudo.replace(/\n/g, '<br>')}
+                </div>
+            `;
+        }
 
         function abrirDoacao() { alert("Faça sua doação para o crescimento dessa startup, não importa o valor, isso ajudará a equipe comtinuar desenvolvendo e investindo em mais tecnologias! Chave pix: lusther3dmult@gmail.com"); }
 
