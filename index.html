@@ -6,7 +6,7 @@
     <title>EHB Library - Mural Global</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Estilos e Bloqueio de Segurança [cite: 2026-01-17] */
+        
         body { font-family: sans-serif; background: #f4ecd8; color: #332b22; margin: 0; }
         
         .conteudo-texto, body {
@@ -20,60 +20,27 @@
         body[data-screen="home"] #screen-home { display: block; }
         body[data-screen="editor"] #screen-editor { display: block; }
         body[data-screen="leitura"] #screen-leitura { display: block; }
+        body[data-screen="perfil"] #screen-perfil { display: block; }
 
+        
         .btn-ehb { position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; 
                    background: #ff4500; border-radius: 50%; display: flex; 
                    align-items: center; justify-content: center; font-weight: bold; color: white;
                    cursor: pointer; box-shadow: 0 0 15px rgba(255,69,0,0.5); z-index: 100; }
-
-        .filtro-container {
-            display: flex;
-            gap: 8px;
-            overflow-x: auto;
-            padding: 10px 0;
-            margin-bottom: 15px;
-            white-space: nowrap;
-        }
-
-        .btn-filtro {
-            background: #5d4a37;
-            color: white;
-            padding: 8px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            width: auto;
-            flex-shrink: 0;
-            border: none;
-        }
-
-        #lista-obras {
-            display: grid;
-            grid-template-columns: 1fr 1fr; 
-            gap: 15px;
-            padding-top: 10px;
-        }
-
-        .pasta-livro { 
-            background: #1f1f1f; 
-            color: white; 
-            border-radius: 8px; 
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border-bottom: 4px solid #ff4500;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
         
+        .btn-perfil-float { position: fixed; bottom: 20px; right: 90px; width: 60px; height: 60px; 
+                   background: #5d4a37; border-radius: 50%; display: flex; 
+                   align-items: center; justify-content: center; font-weight: bold; color: white;
+                   cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.2); z-index: 100; font-size: 24px; }
+
+        .filtro-container { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; margin-bottom: 15px; white-space: nowrap; }
+        .btn-filtro { background: #5d4a37; color: white; padding: 8px 15px; border-radius: 20px; font-size: 12px; border: none; flex-shrink: 0; }
+
+        #lista-obras, #lista-favoritos { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-top: 10px; }
+
+        .pasta-livro { background: #1f1f1f; color: white; border-radius: 8px; overflow: hidden; display: flex; flex-direction: column; border-bottom: 4px solid #ff4500; cursor: pointer; transition: transform 0.2s; }
         .pasta-livro:active { transform: scale(0.95); }
-
-        .capa-estante {
-            width: 100%;
-            height: 150px;
-            object-fit: cover;
-            background: #333;
-        }
-
+        .capa-estante { width: 100%; height: 150px; object-fit: cover; background: #333; }
         .info-card { padding: 10px; }
         .tag-genero { color: #ff4500; font-size: 10px; font-weight: bold; text-transform: uppercase; }
 
@@ -81,25 +48,25 @@
         button { background: #ff4500; color: white; border: none; padding: 15px; width: 100%; cursor: pointer; font-weight: bold; border-radius: 5px; margin-top: 5px;}
         
         .btn-excluir { background: #b22222 !important; margin-top: 10px; }
+        .painel-escritor { margin-top: 20px; padding: 15px; border: 2px dashed #ff4500; border-radius: 10px; background: #fff5e6; }
 
-        .painel-escritor {
-            margin-top: 20px; 
-            padding: 15px; 
-            border: 2px dashed #ff4500; 
-            border-radius: 10px; 
-            background: #fff5e6;
-        }
+        .header-perfil { text-align: center; padding: 30px 20px; background: #2c251e; color: white; border-radius: 15px; margin-bottom: 20px; position: relative; }
+        .foto-container { position: relative; width: 100px; height: 100px; margin: 0 auto 15px; }
+        #foto-exibida { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; border: 3px solid #ff4500; background: #444; }
+        .btn-upload-foto { position: absolute; bottom: 0; right: 0; background: #ff4500; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid #2c251e; }
+        .stats-perfil { display: flex; justify-content: space-around; margin-top: 15px; border-top: 1px solid #444; padding-top: 15px; }
+        .stat-item { text-align: center; font-size: 12px; }
+        .stat-item b { display: block; font-size: 16px; color: #ff4500; }
     </style>
 </head>
 <body data-screen="home">
 
     <div class="btn-ehb" onclick="abrirDoacao()">EHB</div>
+    <div class="btn-perfil-float" onclick="mudarTela('perfil')">👤</div>
 
     <div id="screen-home" class="screen">
         <h2 style="color: #5d4a37;">📚 Multiversy</h2>
-        
         <input type="text" id="campoBusca" placeholder="🔍 Pesquisar título ou autor..." onkeyup="filtrarMural()">
-        
         <div class="filtro-container">
             <button class="btn-filtro" onclick="filtrarPorGenero('Todos')">Todos</button>
             <button class="btn-filtro" onclick="filtrarPorGenero('Romance')">❤️ Romance</button>
@@ -107,24 +74,35 @@
             <button class="btn-filtro" onclick="filtrarPorGenero('Ficção Científica')">🚀 Ficção</button>
             <button class="btn-filtro" onclick="filtrarPorGenero('Terror')">👻 Terror</button>
             <button class="btn-filtro" onclick="filtrarPorGenero('Mistério')">🔍 Mistério</button>
-
-            <button class="btn-filtro" onclick="filtrarPorGenero('Fantasia')">🦄Fantasia</button>
-
+            <button class="btn-filtro" onclick="filtrarPorGenero('Fantasia')">🦄 Fantasia</button>
             <button class="btn-filtro" onclick="filtrarPorGenero('Drama')">🤦‍♂️ Drama</button>
-
-           <button class="btn-filtro" onclick="filtrarPorGenero('Biografia')">🤱 Biografia</button>
-
-<button class="btn-filtro" onclick="filtrarPorGenero('Dark Romance')"> 🖤Dark Romance</button>
-
-
-
-
-
+            <button class="btn-filtro" onclick="filtrarPorGenero('Biografia')">🤱 Biografia</button>
+            <button class="btn-filtro" onclick="filtrarPorGenero('Dark Romance')">🖤 Dark Romance</button>
+            <button class="btn-filtro" onclick="filtrarPorGenero('Culinária')">🍝Culinária</button>
+            <button class="btn-filtto" onclick="filtrarPorGenero('Esportes')">🏟️Esportes</button>
         </div>
-
         <button onclick="mudarTela('editor')" style="margin-bottom: 20px; background: #228b22;">✍️ Publicar Nova Obra</button>
-        
         <div id="lista-obras"></div>
+    </div>
+
+    <div id="screen-perfil" class="screen">
+        <button onclick="mudarTela('home')">⬅ Voltar ao Mural</button>
+        <div class="header-perfil">
+            <div class="foto-container">
+                <img id="foto-exibida" src="https://via.placeholder.com/100">
+                <label class="btn-upload-foto" for="input-foto">📷</label>
+                <input type="file" id="input-foto" style="display:none" accept="image/*" onchange="atualizarFotoLocal(this)">
+            </div>
+            <h3 id="perfil-nome" style="margin:0;">Nome do Usuário</h3>
+            <p id="perfil-username" style="font-size: 13px; color: #aaa; margin: 5px 0;">@username</p>
+            
+            <div class="stats-perfil">
+                <div class="stat-item"><b id="stat-favoritos">0</b>FAVORITOS</div>
+                <div class="stat-item"><b id="stat-seguindo">0</b>SEGUINDO</div>
+            </div>
+        </div>
+        <h3 style="color: #5d4a37; border-left: 4px solid #ff4500; padding-left: 10px;">⭐ Meus Favoritos (Ler Depois)</h3>
+        <div id="lista-favoritos"></div>
     </div>
 
     <div id="screen-editor" class="screen">
@@ -139,20 +117,13 @@
             <option value="Ação">💥 Ação</option>
             <option value="Ficção Científica">🚀 Ficção Científica</option>
             <option value="Terror">👻 Terror</option>
-            <option value="Quadrinhos">🎨 Quadrinhos</option>
             <option value="Mistério">🔍 Mistério</option>
-
-            <option value="Fantasia">🦄Fantasia</option>
-
+            <option value="Fantasia">🦄 Fantasia</option>
             <option value="Drama">🤦‍♂️ Drama</option>
-
             <option value="Biografia">🤱 Biografia</option>
-
-            <option value="Dark Romance"> 🖤 Dark Romance</option>
-
-
-
-
+            <option value="Dark Romance">🖤 Dark Romance</option>
+            <option value="Culinária">🍝 Culinária</option>
+            <option value="Esportes">🏟️Esportes</option>
         </select>
         <textarea id="sinopse" placeholder="Sinopse"></textarea>
         <textarea id="conteudo" rows="10" placeholder="Escreve o início da obra..."></textarea>
@@ -174,50 +145,63 @@
         function mudarTela(tela) {
             document.body.setAttribute('data-screen', tela);
             if(tela === 'home') carregarLivraria();
+            if(tela === 'perfil') carregarDadosSociais(); 
         }
 
-        async function publicarObra() {
-            const user = tg.initDataUnsafe.user;
-            if(!user) return alert("Por favor, abra o app pelo Telegram!");
+        function obterSocial() {
+            const d = localStorage.getItem('ehb_social_data');
+            return d ? JSON.parse(d) : { favoritos: [], seguindo: [], foto: "" };
+        }
 
-            const btn = document.getElementById('btnPublicar');
-            btn.innerText = "A processar...";
-            btn.disabled = true;
+        function salvarSocial(d) {
+            localStorage.setItem('ehb_social_data', JSON.stringify(d));
+        }
 
-            const formData = new FormData();
-            formData.append('titulo', document.getElementById('titulo').value);
-            formData.append('autor', document.getElementById('autor').value);
-            formData.append('genero', document.getElementById('genero').value);
-            formData.append('sinopse', document.getElementById('sinopse').value);
-            formData.append('conteudo', document.getElementById('conteudo').value);
-            formData.append('usuario_id', user.id); 
-            
-            const capaInput = document.getElementById('capa');
-            if (capaInput.files[0]) formData.append('capa', capaInput.files[0]);
+        function carregarDadosSociais() {
+            const user = tg.initDataUnsafe.user || { first_name: "Visitante", username: "user" };
+            const social = obterSocial();
+            document.getElementById('perfil-nome').innerText = user.first_name;
+            document.getElementById('perfil-username').innerText = "@" + (user.username || "anon");
+            document.getElementById('stat-favoritos').innerText = social.favoritos.length;
+            document.getElementById('stat-seguindo').innerText = social.seguindo.length;
+            if(social.foto) document.getElementById('foto-exibida').src = social.foto;
+            const favs = Object.values(todasAsObras).filter(o => social.favoritos.includes(o.titulo));
+            renderizarMural(favs, 'lista-favoritos');
+        }
 
-            try {
-                const res = await fetch(`${API}/publicar`, { method: 'POST', body: formData });
-                if(res.ok) {
-                    alert("✅ Obra publicada!");
-                    mudarTela('home');
-                } else {
-                    const erro = await res.json();
-                    alert("Erro: " + erro.detalhes);
-                }
-            } catch (e) { alert("Erro de conexão."); }
-            finally { btn.innerText = "🚀 PUBLICAR NO MURAL"; btn.disabled = false; }
+        function atualizarFotoLocal(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const social = obterSocial();
+                    social.foto = e.target.result;
+                    salvarSocial(social);
+                    document.getElementById('foto-exibida').src = social.foto;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function favoritarESeguir(titulo, autorId) {
+            let social = obterSocial();
+            if(!social.favoritos.includes(titulo)) social.favoritos.push(titulo);
+            if(autorId && !social.seguindo.includes(autorId.toString())) {
+                social.seguindo.push(autorId.toString());
+            }
+            salvarSocial(social);
+            alert("🔖 Salvo nos favoritos!");
         }
 
         async function carregarLivraria() {
             try {
                 const res = await fetch(`${API}/obras`);
                 todasAsObras = await res.json();
-                renderizarMural(Object.values(todasAsObras));
-            } catch(e) { console.log("Erro ao carregar mural."); }
+                renderizarMural(Object.values(todasAsObras), 'lista-obras');
+            } catch(e) { console.log("Erro ao carregar."); }
         }
 
-        function renderizarMural(lista) {
-            const container = document.getElementById('lista-obras');
+        function renderizarMural(lista, containerId) {
+            const container = document.getElementById(containerId);
             container.innerHTML = '';
             lista.forEach(obra => {
                 const card = document.createElement('div');
@@ -229,105 +213,93 @@
                         <span class="tag-genero">${obra.genero}</span>
                         <div style="font-weight: bold; margin-top: 5px;">${obra.titulo}</div>
                         <div style="font-size: 11px; color: #bbb;">Por: ${obra.autor}</div>
-                    </div>
-                `;
+                    </div>`;
                 container.appendChild(card);
             });
-        }
-
-        function filtrarMural() {
-            const termo = document.getElementById('campoBusca').value.toLowerCase();
-            const filtradas = Object.values(todasAsObras).filter(o => 
-                o.titulo.toLowerCase().includes(termo) || o.autor.toLowerCase().includes(termo)
-            );
-            renderizarMural(filtradas);
-        }
-
-        function filtrarPorGenero(genero) {
-            if(genero === 'Todos') {
-                renderizarMural(Object.values(todasAsObras));
-            } else {
-                const filtradas = Object.values(todasAsObras).filter(o => o.genero === genero);
-                renderizarMural(filtradas);
-            }
         }
 
         function verObra(obra) {
             mudarTela('leitura');
             const user = tg.initDataUnsafe.user;
             const currentUserId = user ? user.id.toString() : null;
-            
-            const tituloRef = obra.titulo;
             const obraID_excluir = obra.titulo.replace(/ /g, "_").toLowerCase();
 
             let painelEscritorHTML = "";
-            
-            // TRAVA CORRIGIDA: Permite se não houver dono OU se for o dono atual OU se for admin
             if (!obra.usuario_id || currentUserId === obra.usuario_id.toString() || currentUserId === "7343419996") {
                 painelEscritorHTML = `
                     <div class="painel-escritor">
                         <h4 style="margin-top:0;">🛠️ Painel do Escritor</h4>
-                        <textarea id="texto-nova-pagina" placeholder="Escreve a nova página aqui..." style="height: 100px; width:100%;"></textarea>
-                        <button onclick="acrescentarPagina('${tituloRef}')" style="background: #228b22;">➕ ADICIONAR ESTA PÁGINA</button>
+                        <textarea id="texto-nova-pagina" placeholder="Escreve a nova página aqui..."></textarea>
+                        <button onclick="acrescentarPagina('${obra.titulo}')" style="background: #228b22;">➕ ADICIONAR PÁGINA</button>
                         <button class="btn-excluir" onclick="excluirObra('${obraID_excluir}')">🗑️ EXCLUIR OBRA</button>
-                    </div>
-                `;
+                    </div>`;
             }
 
             document.getElementById('conteudo-leitura').innerHTML = `
                 <img src="${obra.capa_url || 'https://via.placeholder.com/150x200'}" style="width:100%; border-radius:10px; border: 2px solid #ff4500;">
                 <h2>${obra.titulo}</h2>
+                <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                    <button onclick="favoritarESeguir('${obra.titulo}', '${obra.usuario_id}')" style="background: #ff4500; flex: 1;">🔖 LER DEPOIS</button>
+                </div>
                 <p><strong>Autor:</strong> ${obra.autor}</p>
                 <p style="background: #e9dcc3; padding: 10px; border-radius: 5px;"><em>${obra.sinopse}</em></p>
-                
                 <button onclick="window.open('${obra.telegram_link}', '_blank')">💬 LER NO TELEGRAM</button>
-                
                 ${painelEscritorHTML}
-
                 <hr style="margin: 20px 0;">
                 <div class="conteudo-texto" style="padding: 15px; background: #fffcf2; border-radius: 5px; border: 1px solid #dcd0b9;">
                     ${obra.conteudo.replace(/\n/g, '<br>')}
-                </div>
-            `;
+                </div>`;
+        }
+
+        async function publicarObra() {
+            const user = tg.initDataUnsafe.user;
+            const formData = new FormData();
+            formData.append('titulo', document.getElementById('titulo').value);
+            formData.append('autor', document.getElementById('autor').value);
+            formData.append('genero', document.getElementById('genero').value);
+            formData.append('sinopse', document.getElementById('sinopse').value);
+            formData.append('conteudo', document.getElementById('conteudo').value);
+            formData.append('usuario_id', user.id); 
+            const capaInput = document.getElementById('capa');
+            if (capaInput.files[0]) formData.append('capa', capaInput.files[0]);
+            try {
+                await fetch(`${API}/publicar`, { method: 'POST', body: formData });
+                alert("✅ Obra publicada!"); mudarTela('home');
+            } catch (e) { alert("Erro ao publicar."); }
         }
 
         async function acrescentarPagina(titulo) {
             const user = tg.initDataUnsafe.user;
             const texto = document.getElementById('texto-nova-pagina').value;
-            if(!texto) return alert("Escreve algo!");
-
             const fd = new FormData();
             fd.append('titulo', titulo);
             fd.append('conteudo', texto);
             fd.append('usuario_id', user.id); 
-
-            try {
-                const res = await fetch(`${API}/publicar`, { method: 'POST', body: fd });
-                if(res.ok) { alert("📄 Página adicionada!"); mudarTela('home'); }
-                else { alert("Apenas o autor pode editar esta obra."); }
-            } catch (e) { alert("Erro ao adicionar."); }
+            await fetch(`${API}/publicar`, { method: 'POST', body: fd });
+            alert("📄 Página adicionada!"); mudarTela('home');
         }
 
-        async function excluirObra(obra_id) {
+        async function excluirObra(id) {
+            if(!confirm("Excluir?")) return;
             const user = tg.initDataUnsafe.user;
-            if(!confirm("Excluir do Mural e Telegram?")) return;
-
-            try {
-                const res = await fetch(`${API}/excluir`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        obra_id: obra_id,
-                        usuario_id: user.id 
-                    })
-                });
-                if(res.ok) { alert("Removida."); mudarTela('home'); }
-                else { alert("Você não tem permissão para excluir esta obra."); }
-            } catch (e) { alert("Erro ao excluir."); }
+            await fetch(`${API}/excluir`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ obra_id: id, usuario_id: user.id })
+            });
+            mudarTela('home');
         }
 
-        function abrirDoacao() { alert("EHB Library - Apoie o crescimento para os escritores, faça sua doação para melhorar o desenvolvimento do ecossistema. Chave pix: lusther3dmult@gmail.com ou envie cripto para o endereço de wallet: 0x2ea5d9c734ac06d639d3e4b70ae4c1e163b48555 rede Polygon !"); }
-        window.onload = () => { mudarTela('home'); };
+        function filtrarMural() {
+            const termo = document.getElementById('campoBusca').value.toLowerCase();
+            renderizarMural(Object.values(todasAsObras).filter(o => o.titulo.toLowerCase().includes(termo) || o.autor.toLowerCase().includes(termo)), 'lista-obras');
+        }
+        function filtrarPorGenero(genero) {
+            renderizarMural(genero === 'Todos' ? Object.values(todasAsObras) : Object.values(todasAsObras).filter(o => o.genero === genero), 'lista-obras');
+        }
+        function abrirDoacao() { alert("Pix: lusther3dmult@gmail.com"); }
+
+        window.onload = () => { carregarLivraria(); mudarTela('home'); };
     </script>
 </body>
 </html>
