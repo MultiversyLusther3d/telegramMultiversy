@@ -34,6 +34,7 @@
                    cursor: pointer; box-shadow: 0 0 15px rgba(0,0,0,0.2); z-index: 100; font-size: 24px; }
 
         .filtro-container { display: flex; gap: 8px; overflow-x: auto; padding: 10px 0; margin-bottom: 15px; white-space: nowrap; }
+        
         .btn-filtro { background: #5d4a37; color: white; padding: 8px 15px; border-radius: 20px; font-size: 12px; border: none; flex-shrink: 0; }
 
         #lista-obras, #lista-favoritos { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding-top: 10px; }
@@ -67,7 +68,10 @@
     <div id="screen-home" class="screen">
         <h2 style="color: #5d4a37;">📚 Multiversy</h2>
         <input type="text" id="campoBusca" placeholder="🔍 Pesquisar título ou autor..." onkeyup="filtrarMural()">
+
+        
         <div class="filtro-container">
+            
             <button class="btn-filtro" onclick="filtrarPorGenero('Todos')">Todos</button>
             <button class="btn-filtro" onclick="filtrarPorGenero('Romance')">❤️ Romance</button>
             <button class="btn-filtro" onclick="filtrarPorGenero('Ação')">💥 Ação</button>
@@ -81,6 +85,7 @@
             <button class="btn-filtro" onclick="filtrarPorGenero('Culinária')">🍝Culinária</button>
             <button class="btn-filtto" onclick="filtrarPorGenero('Esportes')">🏟️Esportes</button>
         </div>
+        
         <button onclick="mudarTela('editor')" style="margin-bottom: 20px; background: #228b22;">✍️ Publicar Nova Obra</button>
         <div id="lista-obras"></div>
     </div>
@@ -112,6 +117,7 @@
         <input type="text" id="autor" placeholder="Nome do Autor">
         <label style="font-size: 12px; font-weight: bold;">Capa da Obra:</label>
         <input type="file" id="capa" accept="image/*">
+        
         <select id="genero">
             <option value="Romance">❤️ Romance</option>
             <option value="Ação">💥 Ação</option>
