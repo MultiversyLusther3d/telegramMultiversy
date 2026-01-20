@@ -158,7 +158,7 @@
             <option value="Mistério">🔍 Mistério</option>
             <option value="Fantasia">🦄 Fantasia</option>
             <option value="Dark Romance">🖤 Dark Romance</option>
-            <option value="Culinária">🍝 Culinária</option>
+        <option value="Culinária">🍝 Culinária</option>
             <option value="Esportes">🏟️ Esportes</option>
         </select>
         <textarea id="sinopse" placeholder="Sinopse"></textarea>
@@ -172,8 +172,7 @@
     </div>
 
     <script>
-        const API = 'https://cristhyno.pythonanywhere.com';
-               const API = 'https://cristhyno.pythonanywhere.com';
+                    const API = 'https://cristhyno.pythonanywhere.com';
         const tg = window.Telegram.WebApp;
         tg.expand(); 
 
@@ -185,14 +184,9 @@
             if(tela === 'perfil') carregarDadosSociais(); 
         }
 
-        // --- SISTEMA SOCIAL ---
         function obterSocial() {
             const d = localStorage.getItem('ehb_social_data');
             return d ? JSON.parse(d) : { favoritos: [], seguindo: [], foto: "" };
-        }
-
-        function salvarSocial(d) {
-            localStorage.setItem('ehb_social_data', JSON.stringify(d));
         }
 
         function carregarDadosSociais() {
@@ -208,119 +202,13 @@
             renderizarMural(Object.values(todasAsObras).filter(o => social.favoritos.includes(o.titulo)), 'lista-favoritos');
         }
 
-        function atualizarFotoLocal(input) {
-            if (input.files && input.files[0]) {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const social = obterSocial();
-                    social.foto = e.target.result;
-                    salvarSocial(social);
-                    document.getElementById('foto-exibida').src = social.foto;
-                };
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function favoritarESeguir(titulo, autorId) {
-            let social = obterSocial();
-            if(!social.favoritos.includes(titulo)) social.favoritos.push(titulo);
-            if(autorId && !social.seguindo.includes(autorId.toString())) {
-                social.seguindo.push(autorId.toString());
-            }
-            salvarSocial(social);
-            alert("🔖 Salvo nos favoritos!");
-        }
-
-        // --- LÓGICA DE PUBLICAÇÃO E API ---
-
         async function carregarLivraria() {
             try {
                 const res = await fetch(`${API}/obras`);
                 todasAsObras = await res.json();
                 renderizarMural(Object.values(todasAsObras), 'lista-obras');
-            } catch(e) { console.log("Erro ao carregar obras."); }
+            } catch(e) { console.log("Erro."); }
         }
-
-        async function publicarObra() {
-            const user = tg.initDataUnsafe.user;
-            if(!user) return alert("Por favor, abra pelo Telegram!");
-
-            const btn = document.getElementById('btnPublicar');
-            btn.innerText = "🚀 PUBLICANDO...";
-            btn.disabled = true;
-
-            const formData = new FormData();
-            formData.append('titulo', document.getElementById('titulo').value);
-            formData.append('autor', document.getElementById('autor').value);
-            formData.append('genero', document.getElementById('genero').value);
-            formData.append('sinopse', document.getElementById('sinopse').value);
-            formData.append('conteudo', document.getElementById('conteudo').value);
-            formData.append('usuario_id', user.id); 
-            
-            const capaInput = document.getElementById('capa');
-            if (capaInput.files[0]) formData.append('capa', capaInput.files[0]);
-
-            try {
-                const res = await fetch(`${API}/publicar`, { method: 'POST', body: formData });
-                if(res.ok) {
-                    alert("✅ Obra publicada com sucesso!");
-                    mudarTela('home');
-                } else {
-                    const erro = await res.json();
-                    alert("Erro: " + (erro.detalhes || "Falha na publicação."));
-                }
-            } catch (e) {
-                alert("Erro de conexão com o servidor.");
-            } finally {
-                btn.innerText = "🚀 PUBLICAR NO MURAL";
-                btn.disabled = false;
-            }
-        }
-
-        async function acrescentarPagina(titulo) {
-            const user = tg.initDataUnsafe.user;
-            const texto = document.getElementById('texto-nova-pagina').value;
-            if(!texto) return alert("Escreva o conteúdo da página!");
-
-            const fd = new FormData();
-            fd.append('titulo', titulo);
-            fd.append('conteudo', texto);
-            fd.append('usuario_id', user.id); 
-
-            try {
-                const res = await fetch(`${API}/publicar`, { method: 'POST', body: fd });
-                if(res.ok) {
-                    alert("📄 Página adicionada!");
-                    mudarTela('home');
-                } else {
-                    alert("Apenas o autor original pode editar esta obra.");
-                }
-            } catch (e) { alert("Erro ao conectar."); }
-        }
-
-        async function excluirObra(obra_id) {
-            const user = tg.initDataUnsafe.user;
-            if(!confirm("Tem certeza que deseja excluir esta obra permanentemente?")) return;
-
-            try {
-                const res = await fetch(`${API}/excluir`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ 
-                        obra_id: obra_id,
-                        usuario_id: user.id 
-                    })
-                });
-                if(res.ok) {
-                    alert("🗑️ Obra removida.");
-                    mudarTela('home');
-                } else {
-                    alert("Você não tem permissão para excluir esta obra.");
-                }
-            } catch (e) { alert("Erro ao excluir."); }
-        }
-
-        // --- UTILITÁRIOS ---
 
         function renderizarMural(lista, containerId = 'lista-obras') {
             const container = document.getElementById(containerId);
@@ -348,7 +236,6 @@
         function filtrarPorGenero(genero) {
             renderizarMural(genero === 'Todos' ? Object.values(todasAsObras) : Object.values(todasAsObras).filter(o => o.genero === genero));
         }
-
         function verObra(obra) {
             mudarTela('leitura');
             const user = tg.initDataUnsafe.user;
@@ -360,9 +247,9 @@
                 painelEscritorHTML = `
                     <div class="painel-escritor">
                         <h4 style="margin-top:0;">🛠️ Painel do Escritor</h4>
-                        <textarea id="texto-nova-pagina" placeholder="Escreve a nova página aqui..." style="width:100%; height:80px; margin-bottom:10px;"></textarea>
-                        <button onclick="acrescentarPagina('${obra.titulo}')" style="background: #228b22; width:100%;">➕ ADICIONAR PÁGINA</button>
-                        <button class="btn-excluir" onclick="excluirObra('${obraID_excluir}')" style="width:100%; background:#b22222;">🗑️ EXCLUIR OBRA</button>
+                        <textarea id="texto-nova-pagina" placeholder="Escreve a nova página aqui..."></textarea>
+                        <button onclick="acrescentarPagina('${obra.titulo}')" style="background: #228b22;">➕ ADICIONAR PÁGINA</button>
+                        <button class="btn-excluir" onclick="excluirObra('${obraID_excluir}')">🗑️ EXCLUIR OBRA</button>
                     </div>
                 `;
             }
@@ -371,11 +258,12 @@
                 <img src="${obra.capa_url || 'https://via.placeholder.com/150x200'}" style="width:100%; border-radius:10px; border: 2px solid #ff4500;">
                 <h2>${obra.titulo}</h2>
                 <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+            
                     <button onclick="favoritarESeguir('${obra.titulo}', '${obra.usuario_id}')" style="background: #ff4500; flex: 1;">🔖 LER DEPOIS</button>
                 </div>
                 <p><strong>Autor:</strong> ${obra.autor}</p>
                 <p style="background: #e9dcc3; padding: 10px; border-radius: 5px;"><em>${obra.sinopse}</em></p>
-                <button onclick="window.open('${obra.telegram_link}', '_blank')" style="width:100%">💬 LER NO TELEGRAM</button>
+                <button onclick="window.open('${obra.telegram_link}', '_blank')">💬 LER NO TELEGRAM</button>
                 ${painelEscritorHTML}
                 <hr style="margin: 20px 0;">
                 <div class="conteudo-texto" style="padding: 15px; background: #fffcf2; border-radius: 5px; border: 1px solid #dcd0b9;">
@@ -384,12 +272,9 @@
             `;
         }
 
-        
-        
-
         function abrirDoacao() { alert("Faça sua doação para o crescimento dessa startup, não importa o valor, isso ajudará a equipe comtinuar desenvolvendo e investindo em mais tecnologias! Chave pix: lusther3dmult@gmail.com"); }
-window.onload = () => { carregarLivraria(); mudarTela('home'); };
-        
+  
+
     </script>
 </body>
 </html>
