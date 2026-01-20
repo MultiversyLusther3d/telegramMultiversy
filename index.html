@@ -58,6 +58,9 @@
         .stats-perfil { display: flex; justify-content: space-around; margin-top: 15px; border-top: 1px solid #444; padding-top: 15px; }
         .stat-item { text-align: center; font-size: 12px; }
         .stat-item b { display: block; font-size: 16px; color: #ff4500; }
+
+        /* Estilo para itens do Ranking no topo */
+        .card-ranking { min-width: 140px; background: #fff; border-radius: 8px; padding: 10px; text-align: center; border: 1px solid #ffd700; flex-shrink: 0; cursor: pointer; }
     </style>
 </head>
 <body data-screen="home">
@@ -67,6 +70,10 @@
 
     <div id="screen-home" class="screen">
         <h2 style="color: #5d4a37;">📚 Multiversy</h2>
+        
+        <h4 style="margin: 0 0 10px 0; color: #ff4500;">🔥 Obras em Alta</h4>
+        <div id="lista-ranking" class="filtro-container"></div>
+
         <input type="text" id="campoBusca" placeholder="🔍 Pesquisar título ou autor..." onkeyup="filtrarMural()">
         <div class="filtro-container">
             <button class="btn-filtro" onclick="filtrarPorGenero('Todos')">Todos</button>
@@ -162,15 +169,45 @@
                 document.getElementById('stat-seguidores').innerText = dados.count_seguidores;
                 document.getElementById('stat-seguindo').innerText = dados.count_seguindo;
                 
+                // Atualiza o ranking global se estiver na Home
+                if(document.body.getAttribute('data-screen') === 'home') {
+                    renderizarRanking(dados.ranking_global);
+                }
+
                 renderizarMural(dados.favoritos, 'lista-favoritos');
             } catch(e) { console.error("Erro ao carregar dados sociais."); }
         }
 
+        function renderizarRanking(ranking) {
+            const container = document.getElementById('lista-ranking');
+            if(!ranking || !container) return;
+            container.innerHTML = '';
+            
+            // Ordena os títulos por número de votos (do maior para o menor)
+            const ordenados = Object.keys(ranking).sort((a, b) => ranking[b] - ranking[a]);
+            
+            ordenados.forEach(titulo => {
+                const obra_id = titulo.replace(/ /g, "_").toLowerCase();
+                const obra = todasAsObras[obra_id];
+                if(obra) {
+                    const item = document.createElement('div');
+                    item.className = 'card-ranking';
+                    item.onclick = () => verObra(obra);
+                    item.innerHTML = `
+                        <div style="font-size: 10px; color: #ff4500; font-weight: bold;">⭐ ${ranking[titulo]} VOTOS</div>
+                        <div style="font-size: 12px; font-weight: bold; white-space: normal;">${titulo}</div>
+                    `;
+                    container.appendChild(item);
+                }
+            });
+        }
+
         async function atualizarFoto(input) {
+            const user = tg.initDataUnsafe.user || { id: "7343419996" };
             if (input.files && input.files[0]) {
                 const formData = new FormData();
                 formData.append('foto', input.files[0]);
-                formData.append('usuario_id', tg.initDataUnsafe.user.id);
+                formData.append('usuario_id', user.id);
                 try {
                     const res = await fetch(`${API}/upload_perfil`, { method: 'POST', body: formData });
                     const data = await res.json();
@@ -183,8 +220,7 @@
         }
 
         async function publicarObra() {
-            const user = tg.initDataUnsafe.user;
-            if(!user) return alert("Abra pelo Telegram!");
+            const user = tg.initDataUnsafe.user || { id: "7343419996" };
             const btn = document.getElementById('btnPublicar');
             btn.innerText = "A processar...";
             const formData = new FormData();
@@ -209,11 +245,14 @@
                 const res = await fetch(`${API}/obras`);
                 todasAsObras = await res.json();
                 renderizarMural(Object.values(todasAsObras), 'lista-obras');
+                // Após carregar as obras, carrega os votos para o ranking
+                carregarDadosSociais(); 
             } catch(e) { console.log("Erro ao carregar mural."); }
         }
 
         function renderizarMural(lista, containerId) {
             const container = document.getElementById(containerId);
+            if(!container) return;
             container.innerHTML = '';
             lista.forEach(obra => {
                 const card = document.createElement('div');
@@ -233,8 +272,8 @@
 
         function verObra(obra) {
             mudarTela('leitura');
-            const user = tg.initDataUnsafe.user;
-            const currentUserId = user ? user.id.toString() : null;
+            const user = tg.initDataUnsafe.user || { id: "7343419996" };
+            const currentUserId = user.id.toString();
             const obraID_excluir = obra.titulo.replace(/ /g, "_").toLowerCase();
 
             let painelEscritorHTML = "";
@@ -261,38 +300,40 @@
                 <button onclick="window.open('${obra.telegram_link}', '_blank')">💬 LER NO TELEGRAM</button>
                 ${painelEscritorHTML}
                 <hr style="margin: 20px 0;">
-                <div class="conteudo-texto" style="padding: 15px; background: #fffcf2; border-radius: 5px; border: 1px solid #dcd0b9;">
-                    ${obra.conteudo.replace(/\n/g, '<br>')}
+                <div class="conteudo-texto" style="padding: 15px; background: #fffcf2; border-radius: 5px; border: 1px solid #dcd0b9; white-space: pre-wrap;">
+                    ${obra.conteudo}
                 </div>
             `;
         }
 
         async function votarDireto(titulo) {
             try {
-                await fetch(`${API}/votar_direto`, {
+                const res = await fetch(`${API}/votar_direto`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ titulo: titulo })
                 });
-                alert("Voto registrado!");
+                if(res.ok) {
+                    alert("Voto registrado!");
+                    carregarLivraria(); // Recarrega para atualizar o ranking
+                }
             } catch(e) { alert("Erro ao votar."); }
         }
 
         async function favoritarESeguir(titulo, autorId) {
-            const user = tg.initDataUnsafe.user;
-            if(!user) return alert("Disponível apenas no Telegram.");
+            const user = tg.initDataUnsafe.user || { id: "7343419996" };
             try {
-                await fetch(`${API}/favoritar`, {
+                const res = await fetch(`${API}/favoritar`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ titulo: titulo, usuario_id: user.id, autor_id: autorId })
                 });
-                alert("Obra favoritada!");
+                if(res.ok) alert("Obra favoritada!");
             } catch(e) { alert("Erro ao favoritar."); }
         }
 
         async function acrescentarPagina(titulo) {
-            const user = tg.initDataUnsafe.user;
+            const user = tg.initDataUnsafe.user || { id: "7343419996" };
             const texto = document.getElementById('texto-nova-pagina').value;
             const fd = new FormData();
             fd.append('titulo', titulo);
@@ -305,7 +346,7 @@
         }
 
         async function excluirObra(obra_id) {
-            const user = tg.initDataUnsafe.user;
+            const user = tg.initDataUnsafe.user || { id: "7343419996" };
             if(!confirm("Excluir obra?")) return;
             try {
                 await fetch(`${API}/excluir`, {
@@ -317,17 +358,28 @@
                 mudarTela('home');
             } catch (e) { alert("Erro ao excluir."); }
         }
-
         function filtrarMural() {
-            const termo = document.getElementById('campoBusca').value.toLowerCase();
-            renderizarMural(Object.values(todasAsObras).filter(o => o.titulo.toLowerCase().includes(termo) || o.autor.toLowerCase().includes(termo)), 'lista-obras');
-        }
-        function filtrarPorGenero(genero) {
-            renderizarMural(genero === 'Todos' ? Object.values(todasAsObras) : Object.values(todasAsObras).filter(o => o.genero === genero), 'lista-obras');
-        }
 
-        function abrirDoacao() { alert("Pix: lusther3dmult@gmail.com | Wallet: 0x2ea5d9c734ac06d639d3e4b70ae4c1e163b48555"); }
-        window.onload = () => { mudarTela('home'); };
-    </script>
+const termo = document.getEleme ntById('campoBusca').value.toLowerCase();
+
+renderizar Mural(Object .values (todasAsObras).filter(o => o.titulo.toLowerCase().includes (termo) || o.autor.toLowerCase().includes (termo)), 'lista-obras');
+
+}
+
+function filtrar PorGenero(genero) { renderizar Mural(genero === 'Todos'? Object.values (todasAsObras): Object.values (todasAsObras).filter(o => o.genero === genero), 'lista-obras'); }
+
+function abrirDoacao()
+
+{ alert("Pix: lusther3dmult@gmail.com |
+
+Wallet: 0x2ea5d9c734ac06d639d3e4b70ae4c1e16 3b48555"); }
+
+window.onload = () =>
+
+{ mudarTela('home'); };
+
+</script>
+
 </body>
+
 </html>
