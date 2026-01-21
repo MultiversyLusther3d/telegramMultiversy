@@ -244,12 +244,13 @@
         }
 
         function filtrarMural() {
-            const termo = document.getElementById('campoBusca').value.toLowerCase();
-            const filtradas = Object.values(todasAsObras).filter(o => 
-                o.titulo.toLowerCase().includes(termo) || o.autor.toLowerCase().includes(termo)
-            );
-            renderizarMural(filtradas 'lista-obras');
+    const termo = document.getElementById('campoBusca').value.toLowerCase();
+    const filtradas = Object.values(todasAsObras).filter(o => 
+        o.titulo.toLowerCase().includes(termo) || o.autor.toLowerCase().includes(termo)
+    );
+    renderizarMural(filtradas, 'lista-obras');
         }
+          
 
 
           function filtrarPorGenero(genero) {
