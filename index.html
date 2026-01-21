@@ -171,8 +171,8 @@
         <div id="conteudo-leitura" style="margin-top:20px;"></div>
     </div>
 
-    <script>
-                                    const API = 'https://cristhyno.pythonanywhere.com';
+      <script>
+ const API = 'https://cristhyno.pythonanywhere.com';
         const tg = window.Telegram.WebApp;
         tg.expand(); 
 
@@ -181,6 +181,7 @@
         function mudarTela(tela) {
             document.body.setAttribute('data-screen', tela);
             if(tela === 'home') carregarLivraria();
+          if(tela === 'perfil') carregarDadosSociais();
         }
 
         async function publicarObra() {
@@ -288,6 +289,8 @@
                 <p style="background: #e9dcc3; padding: 10px; border-radius: 5px;"><em>${obra.sinopse}</em></p>
                 
                 <button onclick="window.open('${obra.telegram_link}', '_blank')">💬 LER NO TELEGRAM</button>
+
+<button onclick="favoritarESeguir('${obra.titulo}', '${obra.usuario_id}')" style="background: #ff4500; flex: 1;">🔖 LER DEPOIS</button>
                 
                 ${painelEscritorHTML}
 
@@ -333,8 +336,82 @@
             } catch (e) { alert("Erro ao excluir."); }
         }
 
+function obterSocial() {
+            const d = localStorage.getItem('ehb_social_data');
+            return d ? JSON.parse(d) : { favoritos: [], seguindo: [], foto: "" };
+        }
+
+        function salvarSocial(d) {
+            localStorage.setItem('ehb_social_data', JSON.stringify(d));
+        }
+
+        function carregarDadosSociais() {
+            const user = tg.initDataUnsafe.user || { first_name: "Visitante", username: "user" };
+            const social = obterSocial();
+            document.getElementById('perfil-nome').innerText = user.first_name;
+            document.getElementById('perfil-username').innerText = "@" + (user.username || "anon");
+            document.getElementById('stat-favoritos').innerText = social.favoritos.length;
+            document.getElementById('stat-seguindo').innerText = social.seguindo.length;
+            if(social.foto) document.getElementById('foto-exibida').src = social.foto;
+            const favs = Object.values(todasAsObras).filter(o => social.favoritos.includes(o.titulo));
+            renderizarMural(favs, 'lista-favoritos');
+        }
+
+        function atualizarFotoLocal(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const social = obterSocial();
+                    social.foto = e.target.result;
+                    salvarSocial(social);
+                    document.getElementById('foto-exibida').src = social.foto;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function favoritarESeguir(titulo, autorId) {
+            let social = obterSocial();
+            if(!social.favoritos.includes(titulo)) social.favoritos.push(titulo);
+            if(autorId && !social.seguindo.includes(autorId.toString())) {
+                social.seguindo.push(autorId.toString());
+            }
+            salvarSocial(social);
+            alert("🔖 Salvo nos favoritos!");
+        }
+async function carregarLivraria() {
+            try {
+                const res = await fetch(`${API}/obras`);
+                todasAsObras = await res.json();
+                renderizarMural(Object.values(todasAsObras), 'lista-obras');
+            } catch(e) { console.log("Erro ao carregar."); }
+        }
+
+        function renderizarMural(lista, containerId) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            lista.forEach(obra => {
+                const card = document.createElement('div');
+                card.className = 'pasta-livro';
+                card.onclick = () => verObra(obra);
+                card.innerHTML = `
+                    <img src="${obra.capa_url || 'https://via.placeholder.com/150x200'}" class="capa-estante">
+                    <div class="info-card">
+                        <span class="tag-genero">${obra.genero}</span>
+                        <div style="font-weight: bold; margin-top: 5px;">${obra.titulo}</div>
+                        <div style="font-size: 11px; color: #bbb;">Por: ${obra.autor}</div>
+                    </div>`;
+                container.appendChild(card);
+            });
+        }
+
+
+
         function abrirDoacao() { alert("EHB Library - Apoie o crescimento para os escritores, faça sua doação para melhorar o desenvolvimento do ecossistema. Chave pix: lusther3dmult@gmail.com ou envie cripto para o endereço de wallet: 0x2ea5d9c734ac06d639d3e4b70ae4c1e163b48555 rede Polygon !"); }
         window.onload = () => { mudarTela('home'); };
+   
+                                                
+            
     </script>
 </body>
 </html>
