@@ -248,7 +248,7 @@
             const filtradas = Object.values(todasAsObras).filter(o => 
                 o.titulo.toLowerCase().includes(termo) || o.autor.toLowerCase().includes(termo)
             );
-            renderizarMural(filtradas);
+            renderizarMural(filtradas 'lista-obras');
         }
 
 
@@ -257,7 +257,7 @@
         renderizarMural(Object.values(todasAsObras), 'lista-obras'); // O segundo termo é a chave!
     } else {
         const filtradas = Object.values(todasAsObras).filter(o => o.genero === genero);
-        renderizarMural(filtradas, 'lista-obras'); 
+        renderizarMural(filtradas,'lista-obras'); 
     }
           }
           
