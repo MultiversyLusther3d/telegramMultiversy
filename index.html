@@ -251,14 +251,16 @@
             renderizarMural(filtradas);
         }
 
-        function filtrarPorGenero(genero) {
-            if(genero === 'Todos') {
-                renderizarMural(Object.values(todasAsObras));
-            } else {
-                const filtradas = Object.values(todasAsObras).filter(o => o.genero === genero);
-                renderizarMural(filtradas);
-            }
-        }
+
+          function filtrarPorGenero(genero) {
+    if(genero === 'Todos') {
+        renderizarMural(Object.values(todasAsObras), 'lista-obras'); // O segundo termo é a chave!
+    } else {
+        const filtradas = Object.values(todasAsObras).filter(o => o.genero === genero);
+        renderizarMural(filtradas, 'lista-obras'); 
+    }
+          }
+          
 
         function verObra(obra) {
             mudarTela('leitura');
