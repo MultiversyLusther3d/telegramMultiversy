@@ -96,7 +96,7 @@
 
 
 
-        .nav-bar-container {
+    .nav-bar-container {
     display: flex;
     align-items: center;
     background: #ffffff;
@@ -120,7 +120,7 @@
     margin-left: 10px;
 }
 
-/* Spinner de carregamento */
+/* Spinner de carregamento para navegador */
 .loader {
     width: 18px;
     height: 18px;
@@ -147,6 +147,8 @@
 
     
 </head>
+
+    
 <body data-screen="home">
 
     <div class="btn-ehb" onclick="abrirDoacao()">EHB</div>
@@ -196,6 +198,8 @@
                 <label class="btn-upload-foto" for="input-foto">📷</label>
                 <input type="file" id="input-foto" style="display:none" accept="image/*" onchange="atualizarFotoLocal(this)">
             </div>
+
+            
             <h3 id="perfil-nome" style="margin:0;">Nome do Usuário</h3>
             <p id="perfil-username" style="font-size: 13px; color: #aaa; margin: 5px 0;">@username</p>
             <div id="wallet-display" style="font-size: 11px; color: #ff4500; margin-top: 5px; font-weight: bold;"></div>
@@ -296,9 +300,13 @@
                 const card = document.createElement('div');
                 card.className = 'pasta-livro';
                 card.onclick = () => verObra(obra);
+
+                
                 card.innerHTML = `
                     <img src="${obra.capa_url || 'https://via.placeholder.com/150x200'}" class="capa-estante">
                     <div class="info-card">
+
+                    
                         <span class="tag-genero">${obra.genero}</span>
                         <div style="font-weight: bold; margin-top: 5px;">${obra.titulo}</div>
                         <div style="font-size: 11px; color: #bbb;">Por: ${obra.autor}</div>
@@ -338,7 +346,7 @@
 
             let painelEscritorHTML = "";
             
-            // TRAVA CORRIGIDA: Permite se não houver dono OU se for o dono atual OU se for admin
+            // TRAVA CORRIGIDA: Permite se não houver dono eu pego, se tiver  dono eu não pego. admin
             if (!obra.usuario_id || currentUserId === obra.usuario_id.toString() || currentUserId === "7343419996") {
                 painelEscritorHTML = `
                     <div class="painel-escritor">
@@ -482,12 +490,16 @@ async function carregarLivraria() {
           function irParaPagina(arquivoHtml) {
     const btn = document.getElementById('btnNavegar');
     
-    // 1. Ativa a animação de carregamento
+    // 1. Ativa a animação de carregamento de pesquisa
+              
     btn.classList.add('loading');
     
     // 2. Pequeno delay para o utilizador ver o feedback visual
+              
     setTimeout(() => {
-        // 3. Redireciona para o outro arquivo HTML
+
+         // 3. Redireciona para o outro arquivo HTML que é a pagina de acrescimo
+        
         window.location.href = arquivoHtml;
     }, 800); 
           }
