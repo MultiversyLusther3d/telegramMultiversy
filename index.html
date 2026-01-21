@@ -95,44 +95,51 @@
 
 
 
-.nav-bar-container {
+
+        .nav-bar-container {
     display: flex;
     align-items: center;
     background: #ffffff;
     border: 1px solid #dcd0b9;
-    border-radius: 50px; /* Formato de pílula */
-    padding: 8px 15px;
+    border-radius: 50px;
+    padding: 10px 15px;
     margin: 15px 0;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-}
-
-.nav-bar-icon {
-    color: #888;
-    margin-right: 10px;
-    font-size: 14px;
-}
-
-.nav-bar-button {
-    flex: 1;
-    background: none;
-    border: none;
-    text-align: left;
-    color: #332b22;
-    font-size: 14px;
-    font-family: sans-serif;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     cursor: pointer;
-    padding: 0;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    transition: all 0.2s;
+    position: relative;
 }
 
-.nav-bar-action {
-    color: #ff4500;
-    font-weight: bold;
-    font-size: 18px;
+.nav-bar-container:active { transform: scale(0.98); }
+
+.nav-text {
+    flex: 1;
+    font-size: 14px;
+    color: #332b22;
+    font-family: sans-serif;
     margin-left: 10px;
 }
+
+/* Spinner de carregamento */
+.loader {
+    width: 18px;
+    height: 18px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #ff4500;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    display: none; /* Escondido por padrão */
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading .loader { display: block; }
+.loading .nav-icon { display: none; }
+        
+
         
 
 
@@ -144,6 +151,17 @@
 
     <div class="btn-ehb" onclick="abrirDoacao()">EHB</div>
     <div class="btn-perfil-float" onclick="mudarTela('perfil')">👤</div>
+
+
+    <div class="nav-bar-container" id="btnNavegar" onclick="irParaPagina('outra_pagina.html')">
+    <span class="nav-icon">🔒</span>
+    <div class="loader"></div> <span class="nav-text">multiversy.app/nova-pagina</span>
+    <span style="color: #ff4500; font-weight: bold;">➜</span>
+    </div>
+    
+
+
+    
 
     <div id="screen-home" class="screen">
         <h2 style="color: #5d4a37; display: flex; align-items: center; gap: 8px;">
@@ -459,6 +477,21 @@ async function carregarLivraria() {
 
         function abrirDoacao() { alert("EHB Library - Apoie o crescimento para os escritores, faça sua doação para melhorar o desenvolvimento do ecossistema. Chave pix: lusther3dmult@gmail.com ou envie cripto para o endereço de wallet: 0x2ea5d9c734ac06d639d3e4b70ae4c1e163b48555 rede Polygon !"); }
         window.onload = () => { mudarTela('home'); };
+
+
+          function irParaPagina(arquivoHtml) {
+    const btn = document.getElementById('btnNavegar');
+    
+    // 1. Ativa a animação de carregamento
+    btn.classList.add('loading');
+    
+    // 2. Pequeno delay para o utilizador ver o feedback visual
+    setTimeout(() => {
+        // 3. Redireciona para o outro arquivo HTML
+        window.location.href = arquivoHtml;
+    }, 800); 
+          }
+          
    
                                                 
             
