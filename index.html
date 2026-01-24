@@ -13,38 +13,139 @@
 
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        /* Seu CSS original permanece IGUAL */
-        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
         body {
             background-color: #000000;
             height: 100vh;
             width: 100vw;
             overflow: hidden;
-            border: 15px solid #C0C0C0;
+            border: 15px solid #C0C0C0; /* Moldura prateada */
             font-family: Arial, sans-serif;
             position: relative;
         }
-        .btn-wrapper { position: absolute; display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 10; touch-action: none; user-select: none; width: 80px; }
-        .btn-round { width: 65px; height: 65px; background-color: #111; border-radius: 50%; display: flex; justify-content: center; align-items: center; overflow: hidden; border: 2px solid #C0C0C0; box-shadow: 0 0 12px rgba(192, 192, 192, 0.6); transition: transform 0.1s; }
-        .btn-wrapper:active .btn-round { transform: scale(0.9); }
-        .btn-round img { width: 100%; height: 100%; object-fit: cover; pointer-events: none; }
-        .btn-label { color: #C0C0C0; font-size: 10px; margin-top: 5px; text-align: center; font-weight: bold; text-transform: uppercase; pointer-events: none; }
+
+        .btn-wrapper {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            z-index: 10;
+            touch-action: none;
+            user-select: none;
+            width: 80px;
+        }
+
+        .btn-round {
+            width: 65px;
+            height: 65px;
+            background-color: #111;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            border: 2px solid #C0C0C0;
+            box-shadow: 0 0 12px rgba(192, 192, 192, 0.6);
+            transition: transform 0.1s;
+        }
+
+        .btn-wrapper:active .btn-round {
+            transform: scale(0.9);
+        }
+
+        .btn-round img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            pointer-events: none;
+        }
+
+        .btn-label {
+            color: #C0C0C0;
+            font-size: 10px;
+            margin-top: 5px;
+            text-align: center;
+            font-weight: bold;
+            text-transform: uppercase;
+            pointer-events: none;
+        }
     </style>
 </head>
 <body data-state="default">
 
-    <div class="btn-wrapper" data-url="trader.html"><div class="btn-round"><img src="1.jpg"></div><span class="btn-label">Trader</span></div>
+    <div class="btn-wrapper" data-url="trader.html">
+        <div class="btn-round"><img src="1.jpg"></div>
+        <span class="btn-label">Trader</span>
+    </div>
+
+    <div class="btn-wrapper" data-url="game.html">
+        <div class="btn-round"><img src="2.jpg"></div>
+        <span class="btn-label">Game</span>
+    </div>
+
+    <div class="btn-wrapper" data-url="livraria.html">
+        <div class="btn-round"><img src="3.jpg"></div>
+        <span class="btn-label">Livraria</span>
+    </div>
+
+    <div class="btn-wrapper" data-url="servicos.html">
+        <div class="btn-round"><img src="4.jpg"></div>
+        <span class="btn-label">Serviços</span>
+    </div>
+
+    <div class="btn-wrapper" data-url="noticias.html">
+        <div class="btn-round"><img src="5.jpg"></div>
+        <span class="btn-label">Notícias</span>
+    </div>
+
+    <div class="btn-wrapper" data-url="pesquisas.html">
+        <div class="btn-round"><img src="6.jpg"></div>
+        <span class="btn-label">Pesquisas</span>
+    </div>
+
+    <div class="btn-wrapper" data-url="exploracao.html">
+        <div class="btn-round"><img src="7.jpg"></div>
+        <span class="btn-label">Exploração</span>
+    </div>
+
+    <div class="btn-wrapper" data-url="indisponivel.html">
+        <div class="btn-round"><img src="8.jpg"></div>
+        <span class="btn-label">By Stylus</span>
+    </div>
+    <div class="btn-wrapper" data-url="indisponivel.html">
+        <div class="btn-round"><img src="9.jpg"></div>
+        <span class="btn-label">Indisponível</span>
+    </div>
+    <div class="btn-wrapper" data-url="indisponivel.html">
+        <div class="btn-round"><img src="10.jpg"></div>
+        <span class="btn-label">Indisponível</span>
+    </div>
+    <div class="btn-wrapper" data-url="indisponivel.html">
+        <div class="btn-round"><img src="11.jpg"></div>
+        <span class="btn-label">Indisponível</span>
+    </div>
+    <div class="btn-wrapper" data-url="indisponivel.html">
+        <div class="btn-round"><img src="12.jpg"></div>
+        <span class="btn-label">Indisponível</span>
+    </div>
+
     <script>
-        // REGISTRO DO SERVICE WORKER (PARA PWA)
+        // Registro do Service Worker para PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Manequim PWA: Ativo'))
-                .catch(err => console.log('Erro PWA:', err));
+                .then(reg => console.log('Manequim PWA: Online'))
+                .catch(err => console.error('Erro PWA:', err));
             });
         }
 
-        // --- SEU SCRIPT DE MOVIMENTAÇÃO ORIGINAL (MANTIDO) ---
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
@@ -57,8 +158,10 @@
             let y = Math.random() * (window.innerHeight - 120) + 30;
             let dx = (Math.random() - 0.5) * 0.6;
             let dy = (Math.random() - 0.5) * 0.6;
+
             el.style.left = x + 'px';
             el.style.top = y + 'px';
+
             let isDragging = false;
             let startTime = 0;
 
@@ -67,6 +170,7 @@
                 startTime = Date.now();
                 el.setPointerCapture(e.pointerId);
             });
+
             el.addEventListener('pointermove', (e) => {
                 if (isDragging) {
                     x = e.clientX - 40;
@@ -75,22 +179,34 @@
                     el.style.top = y + 'px';
                 }
             });
+
             el.addEventListener('pointerup', (e) => {
                 isDragging = false;
-                if (Date.now() - startTime < 200) {
-                    window.location.href = el.getAttribute('data-url');
+                const duration = Date.now() - startTime;
+                if (duration < 200) {
+                    const url = el.getAttribute('data-url');
+                    window.location.href = url;
                 }
             });
-            botoesData.push({ el, get x() { return x; }, set x(v) { x = v; }, get y() { return y; }, set y(v) { y = v; }, dx, dy, get dragging() { return isDragging; } });
+
+            botoesData.push({ 
+                el, 
+                get x() { return x; }, set x(v) { x = v; },
+                get y() { return y; }, set y(v) { y = v; },
+                dx, dy, 
+                get dragging() { return isDragging; } 
+            });
         });
 
         function update() {
             botoesData.forEach(b => {
                 if (!b.dragging) {
-                    b.x += b.dx; b.y += b.dy;
+                    b.x += b.dx;
+                    b.y += b.dy;
                     if (b.x <= 20 || b.x >= window.innerWidth - 100) b.dx *= -1;
                     if (b.y <= 20 || b.y >= window.innerHeight - 120) b.dy *= -1;
-                    b.el.style.left = b.x + 'px'; b.el.style.top = b.y + 'px';
+                    b.el.style.left = b.x + 'px';
+                    b.el.style.top = b.y + 'px';
                 }
             });
             requestAnimationFrame(update);
