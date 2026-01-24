@@ -1,4 +1,4 @@
-const CACHE_NAME = 'manequim-v1';
+const CACHE_NAME = 'Multiversy';
 const assets = [
   './',
   'index.html',
