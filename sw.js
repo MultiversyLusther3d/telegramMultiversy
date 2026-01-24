@@ -1,4 +1,4 @@
-const CACHE_NAME = 'Multiversy';
+const CACHE_NAME = 'Multiversy-v2';
 const assets = [
   './',
   'index.html',
