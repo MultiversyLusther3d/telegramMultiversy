@@ -140,8 +140,8 @@
         // Registro do Service Worker para PWA
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                .then(reg => console.log('Manequim PWA: Online'))
+                navigator.serviceWorker.register('sw.js?v=2')
+                .then(reg => console.log('Multiversy PWA: Online'))
                 .catch(err => console.error('Erro PWA:', err));
             });
         }
